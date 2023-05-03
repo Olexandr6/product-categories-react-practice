@@ -21,8 +21,8 @@ function getUser(ownerId) {
 }
 
 const products = productsFromServer.map((product) => {
-  const category = getCategory(product.categoryId); // find by product.categoryId
-  const user = getUser(category.ownerId); // find by category.ownerId
+  const category = getCategory(product.categoryId);
+  const user = getUser(category.ownerId);
 
   return {
     ...product,

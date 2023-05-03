@@ -22,7 +22,11 @@ const products = productsFromServer.map((product) => {
 });
 
 export const App = () => {
-  const [selectedUserNameFilter, setSelectedUserNameFilter] = useState(null);
+  const [selectedUserFilter, setSelectedUserFilter] = useState(null);
+
+  const productsFilteredByOwner = selectedUserFilter !== null
+    ? products.filter(product => product.owner.id === selectedUserFilter.id)
+    : products;
 
   return (
     <div className="section">
@@ -37,6 +41,10 @@ export const App = () => {
               <a
                 data-cy="FilterAllUsers"
                 href="#/"
+                className={classNames({
+                  'is-active': selectedUserFilter === null,
+                })}
+                onClick={() => setSelectedUserFilter(null)}
               >
                 All
               </a>
@@ -46,10 +54,10 @@ export const App = () => {
                   data-cy="FilterUser"
                   href="#/"
                   className={classNames({
-                    'is-active': user.name === selectedUserNameFilter,
+                    'is-active': user.name === selectedUserFilter,
                   })}
                   key={user.id}
-                  onClick={() => setSelectedUserNameFilter(user.name)}
+                  onClick={() => setSelectedUserFilter(user)}
                 >
                   {user.name}
                 </a>
@@ -197,7 +205,7 @@ export const App = () => {
             </thead>
 
             <tbody>
-              {products.map(product => (
+              {productsFilteredByOwner.map(product => (
                 <tr data-cy="Product" key={product.id}>
                   <td className="has-text-weight-bold" data-cy="ProductId">
                     {product.id}

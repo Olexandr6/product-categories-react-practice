@@ -21,14 +21,26 @@ const products = productsFromServer.map((product) => {
   };
 });
 
+function normalizeString(string) {
+  return string.toLowerCase().trim();
+}
+
 export const App = () => {
   const [visibleProducts, setVisibleProducts] = useState(products);
   const [selectedUserId, setSelectedUserId] = useState(0);
+  const [inputValue, setInputValue] = useState('');
 
-  const productsToShow = visibleProducts
+  let productsToShow = visibleProducts
     .filter(product => (selectedUserId === 0
       ? true
       : product.user.id === selectedUserId));
+
+  productsToShow = productsToShow.filter((product) => {
+    const normalizedProductName = normalizeString(product.name);
+    const normalizedInputValue = normalizeString(inputValue);
+
+    return normalizedProductName.includes(normalizedInputValue);
+  });
 
   return (
     <div className="section">
@@ -74,21 +86,25 @@ export const App = () => {
                   type="text"
                   className="input"
                   placeholder="Search"
-                  value="qwe"
+                  value={inputValue}
+                  onChange={event => setInputValue(event.target.value)}
                 />
 
                 <span className="icon is-left">
                   <i className="fas fa-search" aria-hidden="true" />
                 </span>
 
+                {inputValue && (
                 <span className="icon is-right">
                   {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
                   <button
                     data-cy="ClearButton"
                     type="button"
                     className="delete"
+                    onClick={() => setInputValue('')}
                   />
                 </span>
+                )}
               </p>
             </div>
 
@@ -138,6 +154,10 @@ export const App = () => {
                 data-cy="ResetAllButton"
                 href="#/"
                 className="button is-link is-outlined is-fullwidth"
+                onClick={() => {
+                  setSelectedUserId(0);
+                  setInputValue('');
+                }}
               >
                 Reset all filters
               </a>
@@ -146,94 +166,101 @@ export const App = () => {
         </div>
 
         <div className="box table-container">
+          {productsToShow.length === 0
+          && (
           <p data-cy="NoMatchingMessage">
             No products matching selected criteria
           </p>
+          )}
 
-          <table
-            data-cy="ProductTable"
-            className="table is-striped is-narrow is-fullwidth"
-          >
-            <thead>
-              <tr>
-                <th>
-                  <span className="is-flex is-flex-wrap-nowrap">
-                    ID
+          {productsToShow.length !== 0
+            && (
+            <table
+              data-cy="ProductTable"
+              className="table is-striped is-narrow is-fullwidth"
+            >
 
-                    <a href="#/">
-                      <span className="icon">
-                        <i data-cy="SortIcon" className="fas fa-sort" />
-                      </span>
-                    </a>
-                  </span>
-                </th>
+              <thead>
+                <tr>
+                  <th>
+                    <span className="is-flex is-flex-wrap-nowrap">
+                      ID
 
-                <th>
-                  <span className="is-flex is-flex-wrap-nowrap">
-                    Product
-
-                    <a href="#/">
-                      <span className="icon">
-                        <i data-cy="SortIcon" className="fas fa-sort-down" />
-                      </span>
-                    </a>
-                  </span>
-                </th>
-
-                <th>
-                  <span className="is-flex is-flex-wrap-nowrap">
-                    Category
-
-                    <a href="#/">
-                      <span className="icon">
-                        <i data-cy="SortIcon" className="fas fa-sort-up" />
-                      </span>
-                    </a>
-                  </span>
-                </th>
-
-                <th>
-                  <span className="is-flex is-flex-wrap-nowrap">
-                    User
-
-                    <a href="#/">
-                      <span className="icon">
-                        <i data-cy="SortIcon" className="fas fa-sort" />
-                      </span>
-                    </a>
-                  </span>
-                </th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {productsToShow.map(product => (
-                <tr data-cy="Product" key={product.id}>
-                  <td className="has-text-weight-bold" data-cy="ProductId">
-                    {product.id}
-                  </td>
-
-                  <td data-cy="ProductName">{product.name}</td>
-                  <td data-cy="ProductCategory">
-                    <span>
-                      {product.category.icon}
+                      <a href="#/">
+                        <span className="icon">
+                          <i data-cy="SortIcon" className="fas fa-sort" />
+                        </span>
+                      </a>
                     </span>
-                    {` - ${product.category.title}`}
-                  </td>
+                  </th>
 
-                  <td
-                    data-cy="ProductUser"
-                    className={classNames(
-                      { 'has-text-link': product.user.sex === 'm' },
-                      { 'has-text-danger': product.user.sex === 'f' },
-                    )}
-                  >
-                    {product.user.name}
-                  </td>
+                  <th>
+                    <span className="is-flex is-flex-wrap-nowrap">
+                      Product
+
+                      <a href="#/">
+                        <span className="icon">
+                          <i data-cy="SortIcon" className="fas fa-sort-down" />
+                        </span>
+                      </a>
+                    </span>
+                  </th>
+
+                  <th>
+                    <span className="is-flex is-flex-wrap-nowrap">
+                      Category
+
+                      <a href="#/">
+                        <span className="icon">
+                          <i data-cy="SortIcon" className="fas fa-sort-up" />
+                        </span>
+                      </a>
+                    </span>
+                  </th>
+
+                  <th>
+                    <span className="is-flex is-flex-wrap-nowrap">
+                      User
+
+                      <a href="#/">
+                        <span className="icon">
+                          <i data-cy="SortIcon" className="fas fa-sort" />
+                        </span>
+                      </a>
+                    </span>
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+
+              <tbody>
+                {productsToShow.map(product => (
+                  <tr data-cy="Product" key={product.id}>
+                    <td className="has-text-weight-bold" data-cy="ProductId">
+                      {product.id}
+                    </td>
+
+                    <td data-cy="ProductName">{product.name}</td>
+                    <td data-cy="ProductCategory">
+                      <span>
+                        {product.category.icon}
+                      </span>
+                      {` - ${product.category.title}`}
+                    </td>
+
+                    <td
+                      data-cy="ProductUser"
+                      className={classNames(
+                        { 'has-text-link': product.user.sex === 'm' },
+                        { 'has-text-danger': product.user.sex === 'f' },
+                      )}
+                    >
+                      {product.user.name}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            )}
         </div>
       </div>
     </div>

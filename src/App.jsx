@@ -19,20 +19,38 @@ const products = productsFromServer.map((product) => {
   };
 });
 
-const getProductByUserName = userName => [...products]
-  .filter(product => product.user.name === userName);
-
 export const App = () => {
   const [visibleProducts, setVisibleProducts] = React.useState(products);
   const [selectedUser, setSelectedUser] = React.useState(null);
+  const [guery, setQuery] = React.useState('');
 
-  React.useEffect(() => {
-    if (selectedUser) {
-      setVisibleProducts(getProductByUserName(selectedUser.name));
-    } else {
-      setVisibleProducts(products);
-    }
-  }, [selectedUser]);
+  const getProductByUserName = userName => [...products]
+    .filter(product => product.user.name === userName);
+
+  const handleFilterUser = (user) => {
+    setSelectedUser(user);
+    setVisibleProducts(getProductByUserName(user.name));
+  };
+
+  const handlerFilterAllUsers = () => {
+    setSelectedUser(null);
+    setVisibleProducts(products);
+  };
+
+  const isProductMatchSearch = search => search
+    .toLowerCase().includes(guery.toLowerCase().trim());
+
+  const handleSearch = (event) => {
+    setQuery(event.target.value);
+    setVisibleProducts(products.filter(product => (
+      isProductMatchSearch(product.name)
+    )));
+  };
+
+  const handleClear = () => {
+    setQuery('');
+    setVisibleProducts(products);
+  };
 
   return (
     <div className="section">
@@ -47,7 +65,7 @@ export const App = () => {
               <a
                 data-cy="FilterAllUsers"
                 href="#/"
-                onClick={() => setSelectedUser(null)}
+                onClick={() => handlerFilterAllUsers()}
                 className={classNames({
                   'is-active': !selectedUser,
                 })}
@@ -59,7 +77,7 @@ export const App = () => {
                   key={user.id}
                   data-cy="FilterUser"
                   href="#/"
-                  onClick={() => setSelectedUser(user)}
+                  onClick={() => handleFilterUser(user)}
                   className={classNames({
                     'is-active': selectedUser === user,
                   })}
@@ -76,7 +94,8 @@ export const App = () => {
                   type="text"
                   className="input"
                   placeholder="Search"
-                  value="qwe"
+                  value={guery}
+                  onChange={event => handleSearch(event)}
                 />
 
                 <span className="icon is-left">
@@ -89,6 +108,7 @@ export const App = () => {
                     data-cy="ClearButton"
                     type="button"
                     className="delete"
+                    onClick={() => handleClear()}
                   />
                 </span>
               </p>

@@ -22,8 +22,13 @@ const products = productsFromServer.map((product) => {
 });
 
 export const App = () => {
-  // const [visibleProducts, setVisibleProducts] = useState(products);
-  const counter = 0;
+  const [visibleProducts, setVisibleProducts] = useState(products);
+  const [selectedUserId, setSelectedUserId] = useState(0);
+
+  const productsToShow = visibleProducts
+    .filter(product => (selectedUserId === 0
+      ? true
+      : product.user.id === selectedUserId));
 
   return (
     <div className="section">
@@ -38,31 +43,28 @@ export const App = () => {
               <a
                 data-cy="FilterAllUsers"
                 href="#/"
+                onClick={() => setSelectedUserId(0)}
+                className={classNames(
+                  { 'is-active': !selectedUserId },
+                )}
               >
                 All
               </a>
 
-              <a
-                data-cy="FilterUser"
-                href="#/"
-              >
-                User 1
-              </a>
-
-              <a
-                data-cy="FilterUser"
-                href="#/"
-                className="is-active"
-              >
-                User 2
-              </a>
-
-              <a
-                data-cy="FilterUser"
-                href="#/"
-              >
-                User 3
-              </a>
+              {usersFromServer.map(user => (
+                <a
+                  data-cy="FilterUser"
+                  href="#/"
+                  id={user.id}
+                  key={user.id}
+                  className={classNames(
+                    { 'is-active': selectedUserId === user.id },
+                  )}
+                  onClick={() => setSelectedUserId(user.id)}
+                >
+                  {user.name}
+                </a>
+              ))}
             </p>
 
             <div className="panel-block">
@@ -205,7 +207,7 @@ export const App = () => {
             </thead>
 
             <tbody>
-              {products.map(product => (
+              {productsToShow.map(product => (
                 <tr data-cy="Product" key={product.id}>
                   <td className="has-text-weight-bold" data-cy="ProductId">
                     {product.id}

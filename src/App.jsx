@@ -9,6 +9,7 @@ import productsFromServer from './api/products';
 const products = productsFromServer.map((product) => {
   const category = categoriesFromServer
     .find(({ id }) => id === product.categoryId);
+
   const user = usersFromServer
     .find(({ id }) => id === category.ownerId);
 
@@ -21,14 +22,16 @@ const products = productsFromServer.map((product) => {
   );
 });
 
-const getProductsOwner = (activeUserId, query) => (
-  products.filter((product) => {
-    if (activeUserId) {
-      return product.user.id === activeUserId;
-    }
+const getpreparedProducts = (activeUserId, query) => (
+  products
 
-    return true;
-  })
+    .filter((product) => {
+      if (activeUserId) {
+        return product.user.id === activeUserId;
+      }
+
+      return true;
+    })
 
     .filter((product) => {
       if (query) {
@@ -43,7 +46,7 @@ export const App = () => {
   const [activeUserId, setActiveUserId] = useState(0);
   const [query, setQuery] = useState('');
 
-  const productsOwner = getProductsOwner(activeUserId, query);
+  const preparedProducts = getpreparedProducts(activeUserId, query);
 
   const handleResetAll = () => {
     setActiveUserId(0);
@@ -174,13 +177,13 @@ export const App = () => {
         </div>
 
         <div className="box table-container">
-          {productsOwner.length === 0 && (
+          {preparedProducts.length === 0 && (
             <p data-cy="NoMatchingMessage">
               No products matching selected criteria
             </p>
           )}
 
-          {productsOwner.length > 0 && (
+          {preparedProducts.length > 0 && (
             <table
               data-cy="ProductTable"
               className="table is-striped is-narrow is-fullwidth"
@@ -238,7 +241,7 @@ export const App = () => {
               </thead>
 
               <tbody>
-                {productsOwner.map((product) => {
+                {preparedProducts.map((product) => {
                   const {
                     id,
                     name,

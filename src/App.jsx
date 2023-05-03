@@ -14,7 +14,8 @@ const products = productsFromServer.map((product) => {
 
   return {
     ...product,
-    categoryName: `${category.icon} - ${category.title}`,
+    categoryIcon: category.icon,
+    categoryName: category.title,
     user,
   };
 });
@@ -23,6 +24,7 @@ export const App = () => {
   const [visibleProducts, setVisibleProducts] = React.useState(products);
   const [selectedUser, setSelectedUser] = React.useState(null);
   const [guery, setQuery] = React.useState('');
+  const [selectedCategory, setSelectedCategory] = React.useState([]);
 
   const getProductByUserName = userName => [...products]
     .filter(product => product.user.name === userName);
@@ -51,8 +53,29 @@ export const App = () => {
   const handleResetAll = () => {
     setQuery('');
     setSelectedUser(null);
+    setSelectedCategory([]);
     setVisibleProducts(products);
   };
+
+  const handleFilterCategory = (category) => {
+    setSelectedCategory([...selectedCategory, category.title]);
+    setVisibleProducts(products.filter(product => selectedCategory
+      .includes(product.categoryName)));
+  };
+
+  const handleResetCategory = () => {
+    setSelectedCategory([]);
+    setVisibleProducts(products);
+  };
+
+  const handleDeleteCategory = (category) => {
+    setSelectedCategory(selectedCategory.filter(cat => cat !== category.title));
+    setVisibleProducts(products.filter(product => selectedCategory
+      .includes(product.categoryName)));
+  };
+
+  const isSelectedCategory = category => selectedCategory
+    .includes(category.title);
 
   return (
     <div className="section">
@@ -121,41 +144,30 @@ export const App = () => {
               <a
                 href="#/"
                 data-cy="AllCategories"
-                className="button is-success mr-6 is-outlined"
+                className={classNames('button mr-2 my-1', {
+                  'is-outlined': selectedCategory.length === 0,
+                })}
+                onClick={() => handleResetCategory()}
               >
                 All
               </a>
 
-              <a
-                data-cy="Category"
-                className="button mr-2 my-1 is-info"
-                href="#/"
-              >
-                Category 1
-              </a>
-
-              <a
-                data-cy="Category"
-                className="button mr-2 my-1"
-                href="#/"
-              >
-                Category 2
-              </a>
-
-              <a
-                data-cy="Category"
-                className="button mr-2 my-1 is-info"
-                href="#/"
-              >
-                Category 3
-              </a>
-              <a
-                data-cy="Category"
-                className="button mr-2 my-1"
-                href="#/"
-              >
-                Category 4
-              </a>
+              {categoriesFromServer.map(category => (
+                <a
+                  key={category.id}
+                  data-cy="Category"
+                  href="#/"
+                  className={classNames('button mr-2 my-1', {
+                    'is-info': isSelectedCategory(category),
+                  })}
+                  onClick={() => (!isSelectedCategory(category)
+                    ? handleFilterCategory(category)
+                    : handleDeleteCategory(category)
+                  )}
+                >
+                  {category.title}
+                </a>
+              ))}
             </div>
 
             <div className="panel-block">
@@ -241,7 +253,7 @@ export const App = () => {
                     </td>
 
                     <td data-cy="ProductName">{product.name}</td>
-                    <td data-cy="ProductCategory">{product.categoryName}</td>
+                    <td data-cy="ProductCategory">{`${product.categoryIcon} - ${product.categoryName}`}</td>
 
                     <td
                       data-cy="ProductUser"

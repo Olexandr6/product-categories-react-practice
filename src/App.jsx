@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './App.scss';
 
 import usersFromServer from './api/users';
@@ -18,6 +18,13 @@ export const App = () => {
     };
   });
 
+  const [selectedUserFilter, setSelectedUserFilter] = useState(null);
+
+  const filteredProducts = selectedUserFilter === null
+    ? products
+    : products
+      .filter(product => product.categories.ownerId === selectedUserFilter);
+
   return (
     <div className="section">
       <div className="container">
@@ -31,31 +38,23 @@ export const App = () => {
               <a
                 data-cy="FilterAllUsers"
                 href="#/"
+                className={selectedUserFilter === null ? 'is-active' : ''}
+                onClick={() => setSelectedUserFilter(null)}
               >
                 All
               </a>
 
-              <a
-                data-cy="FilterUser"
-                href="#/"
-              >
-                User 1
-              </a>
-
-              <a
-                data-cy="FilterUser"
-                href="#/"
-                className="is-active"
-              >
-                User 2
-              </a>
-
-              <a
-                data-cy="FilterUser"
-                href="#/"
-              >
-                User 3
-              </a>
+              {usersFromServer.map(user => (
+                <a
+                  key={user.id}
+                  data-cy="FilterUser"
+                  href="#/"
+                  className={selectedUserFilter === user.id ? 'is-active' : ''}
+                  onClick={() => setSelectedUserFilter(user.id)}
+                >
+                  {user.name}
+                </a>
+              ))}
             </p>
 
             <div className="panel-block">
@@ -198,7 +197,7 @@ export const App = () => {
             </thead>
 
             <tbody>
-              {products.map(product => (
+              {filteredProducts.map(product => (
                 <tr key={product.id}>
                   <td className="has-text-weight-bold">{product.id}</td>
                   <td>{product.name}</td>
@@ -207,8 +206,12 @@ export const App = () => {
                     {' - '}
                     {product.categories.title}
                   </td>
-                  <td className={product.users.sex === 'm'
-                    ? 'has-text-link' : 'has-text-danger'}
+                  <td
+                    className={
+                      product.users.sex === 'm'
+                        ? 'has-text-link'
+                        : 'has-text-danger'
+                    }
                   >
                     {product.users.name}
                   </td>

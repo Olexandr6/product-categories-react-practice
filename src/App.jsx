@@ -19,57 +19,27 @@ const products = productsFromServer.map((product) => {
 });
 
 export const App = () => {
-  const [visibleProducts, setVisibleProducts] = useState(products);
   const [chosenUserName, setChosenUser] = useState('');
   const [inputQuery, setInputQuery] = useState('');
 
-  const handleQueryChange = (event) => {
-    const { value } = event.target;
-
-    setInputQuery(value);
-    filterProducts('productName', value);
-  };
-
-  const filterProducts = (filterType, filterValue) => {
-    switch (filterType) {
-      case 'none':
-        setVisibleProducts(products);
-        break;
-
-      case 'userName': {
-        setVisibleProducts(products
-          .filter(product => product.user.name === filterValue));
-
-        if (inputQuery.length > 0) {
-          setVisibleProducts(current => current
-            .filter(product => product.name
-              .toLowerCase().includes(inputQuery.toLowerCase())));
-        }
-
-        break;
-      }
-
-      case 'productName':
-      { setVisibleProducts(products
-        .filter(product => product.name
-          .toLowerCase().includes(filterValue.toLowerCase())));
-
-      if (chosenUserName.length > 0) {
-        setVisibleProducts(current => current
-          .filter(product => product.user.name === chosenUserName));
-      }
-
-      break; }
-
-      default: throw new Error('wrong filter type');
-    }
-  };
+  let visibleProducts = [...products];
 
   const handleReset = () => {
     setChosenUser('');
     setInputQuery('');
-    setVisibleProducts(products);
   };
+
+  if (chosenUserName.length) {
+    visibleProducts = visibleProducts
+      .filter(product => product.user.name === chosenUserName);
+  }
+
+  if (inputQuery.length) {
+    const lowerQuery = inputQuery.toLowerCase().trim();
+
+    visibleProducts = visibleProducts
+      .filter(product => product.name.toLowerCase().includes(lowerQuery));
+  }
 
   return (
     <div className="section">
@@ -87,7 +57,6 @@ export const App = () => {
                 href="#/"
                 onClick={() => {
                   setChosenUser('');
-                  filterProducts('none');
                 }}
               >
                 All
@@ -101,7 +70,6 @@ export const App = () => {
                   key={user.id}
                   onClick={() => {
                     setChosenUser(user.name);
-                    filterProducts('userName', user.name);
                   }}
                 >
                   {user.name}
@@ -117,7 +85,7 @@ export const App = () => {
                   className="input"
                   placeholder="Search"
                   value={inputQuery}
-                  onChange={handleQueryChange}
+                  onChange={event => setInputQuery(event.target.value)}
                 />
 
                 <span className="icon is-left">
@@ -132,7 +100,6 @@ export const App = () => {
                     className="delete"
                     onClick={() => {
                       setInputQuery('');
-                      setVisibleProducts(products);
                     }}
                   />
                 </span>

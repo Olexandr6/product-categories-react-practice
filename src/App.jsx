@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/accessible-emoji */
 import React from 'react';
 import './App.scss';
 import classNames from 'classnames';
@@ -22,7 +21,7 @@ const products = productsFromServer.map((product) => {
   );
 });
 
-const getProductsOwner = activeUserId => (
+const getProductsOwner = (activeUserId, query) => (
   products.filter((product) => {
     if (activeUserId) {
       return product.user.id === activeUserId;
@@ -30,12 +29,21 @@ const getProductsOwner = activeUserId => (
 
     return true;
   })
+
+    .filter((product) => {
+      if (query) {
+        return product.name.toLowerCase().includes(query.toLowerCase());
+      }
+
+      return true;
+    })
 );
 
 export const App = () => {
   const [activeUserId, setActiveUserId] = React.useState(0);
+  const [query, setQuery] = React.useState('');
 
-  const productsOwner = getProductsOwner(activeUserId);
+  const productsOwner = getProductsOwner(activeUserId, query);
 
   return (
     <div className="section">
@@ -84,21 +92,25 @@ export const App = () => {
                   type="text"
                   className="input"
                   placeholder="Search"
-                  value="qwe"
+                  value={query}
+                  onChange={event => setQuery(event.target.value.trimStart())}
                 />
 
                 <span className="icon is-left">
                   <i className="fas fa-search" aria-hidden="true" />
                 </span>
 
-                <span className="icon is-right">
-                  {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
-                  <button
-                    data-cy="ClearButton"
-                    type="button"
-                    className="delete"
-                  />
-                </span>
+                {query && (
+                  <span className="icon is-right">
+                    {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
+                    <button
+                      data-cy="ClearButton"
+                      type="button"
+                      className="delete"
+                      onClick={() => setQuery('')}
+                    />
+                  </span>
+                )}
               </p>
             </div>
 

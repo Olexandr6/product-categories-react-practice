@@ -27,19 +27,47 @@ export const App = () => {
     const { value } = event.target;
 
     setInputQuery(value);
-    setVisibleProducts(visibleProducts
-      .filter(product => product.name.toLowerCase()
-        .includes(value.toLowerCase())));
+    filterProducts('productName', value);
   };
 
-  // const filterProduct = () => {
-  //   setVisibleProducts(products
-  //     .filter(product => product.user.name === user.name));
-  // };
+  const filterProducts = (filterType, filterValue) => {
+    switch (filterType) {
+      case 'none':
+        setVisibleProducts(products);
+        break;
 
-  const handleReset = () =>{
+      case 'userName': {
+        setVisibleProducts(products
+          .filter(product => product.user.name === filterValue));
+
+        if (inputQuery.length > 0) {
+          setVisibleProducts(current => current
+            .filter(product => product.name
+              .toLowerCase().includes(inputQuery.toLowerCase())));
+        }
+
+        break;
+      }
+
+      case 'productName':
+      { setVisibleProducts(products
+        .filter(product => product.name
+          .toLowerCase().includes(filterValue.toLowerCase())));
+
+      if (chosenUserName.length > 0) {
+        setVisibleProducts(current => current
+          .filter(product => product.user.name === chosenUserName));
+      }
+
+      break; }
+
+      default: throw new Error('wrong filter type');
+    }
+  };
+
+  const handleReset = () => {
     setChosenUser('');
-    setInputQuery('')
+    setInputQuery('');
     setVisibleProducts(products);
   };
 
@@ -59,7 +87,7 @@ export const App = () => {
                 href="#/"
                 onClick={() => {
                   setChosenUser('');
-                  setVisibleProducts(products);
+                  filterProducts('none');
                 }}
               >
                 All
@@ -73,8 +101,7 @@ export const App = () => {
                   key={user.id}
                   onClick={() => {
                     setChosenUser(user.name);
-                    setVisibleProducts(products
-                      .filter(product => product.user.name === user.name));
+                    filterProducts('userName', user.name);
                   }}
                 >
                   {user.name}

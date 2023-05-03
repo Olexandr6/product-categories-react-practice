@@ -39,6 +39,11 @@ export const App = () => {
     setUsersId(id);
   };
 
+  const handleReset = () => {
+    setUsersId(0);
+    setQuery('');
+  };
+
   return (
     <div className="section">
       <div className="container">
@@ -169,6 +174,7 @@ export const App = () => {
                 data-cy="ResetAllButton"
                 href="#/"
                 className="button is-link is-outlined is-fullwidth"
+                onClick={handleReset}
               >
                 Reset all filters
               </a>
@@ -177,9 +183,11 @@ export const App = () => {
         </div>
 
         <div className="box table-container">
-          <p data-cy="NoMatchingMessage">
-            No products matching selected criteria
-          </p>
+          {filterByQuery.length === 0 && (
+            <p data-cy="NoResultsMessage">
+              No results
+            </p>
+          )}
 
           <table
             data-cy="ProductTable"

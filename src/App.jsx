@@ -22,14 +22,18 @@ const products = productsFromServer.map((product) => {
 
 export const App = () => {
   const [userId, setUsersId] = useState(0);
+  const [query, setQuery] = useState('');
 
-  const visibleProducts = products.filter((product) => {
+  const filterByUser = products.filter((product) => {
     if (userId === 0) {
       return true;
     }
 
     return product.user.id === userId;
   });
+
+  const filterByQuery = filterByUser.filter(product => (
+    product.name.toLowerCase().includes(query.toLowerCase())));
 
   const handleFilterUserById = (id) => {
     setUsersId(id);
@@ -97,7 +101,8 @@ export const App = () => {
                   type="text"
                   className="input"
                   placeholder="Search"
-                  value="qwe"
+                  value={query}
+                  onChange={event => setQuery(event.target.value)}
                 />
 
                 <span className="icon is-left">
@@ -106,11 +111,14 @@ export const App = () => {
 
                 <span className="icon is-right">
                   {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
+                  {query && (
                   <button
                     data-cy="ClearButton"
                     type="button"
                     className="delete"
+                    onClick={() => setQuery('')}
                   />
+                  )}
                 </span>
               </p>
             </div>
@@ -230,7 +238,7 @@ export const App = () => {
             </thead>
 
             <tbody>
-              {visibleProducts.map((product) => {
+              {filterByQuery.map((product) => {
                 const {
                   id,
                   name,

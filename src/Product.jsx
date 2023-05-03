@@ -17,8 +17,7 @@ export const Product = ({ id, name, category, user }) => (
       >
         {category.icon}
       </span>
-      -
-      {` ${category.title}`}
+      {` - ${category.title}`}
     </td>
 
     <td

@@ -34,19 +34,29 @@ export const App = () => {
     setSelectedCategories([]);
   };
 
+  const handleCategorySelection = id => setSelectedCategories(current => [
+    ...current,
+    id,
+  ]);
+
   const productsFilteredByOwner = selectedUserFilter !== null
     ? products.filter(product => product.owner.id === selectedUserFilter.id)
     : products;
 
   const productsFilteredByProductName = query !== ''
-    ? productsFilteredByOwner.filter(product => (
-      product.name.toLowerCase().includes(query.toLowerCase().trim())))
+    ? productsFilteredByOwner.filter((product) => {
+      const normalizedProductName = product.name.toLowerCase();
+      const normalizedInput = query.toLowerCase().trim();
+
+      return (
+        normalizedProductName.includes(normalizedInput));
+    })
     : productsFilteredByOwner;
 
   const productsToShow = selectedCategories.length > 0
     ? productsFilteredByProductName.filter(product => (
-      selectedCategories.includes(product.category)))
-    : productsFilteredByOwner;
+      selectedCategories.includes(product.category.id)))
+    : productsFilteredByProductName;
 
   return (
     <div className="section">
@@ -128,15 +138,13 @@ export const App = () => {
 
               {categoriesFromServer.map(category => (
                 <a
+                  key={category.id}
                   data-cy="Category"
                   className={classNames('button mr-2 my-1', {
-                    'is-info': selectedCategories.includes(category),
+                    'is-info': selectedCategories.includes(category.id),
                   })}
                   href="#/"
-                  onClick={() => setSelectedCategories(current => [
-                    ...current,
-                    category,
-                  ])}
+                  onClick={() => handleCategorySelection(category.id)}
                 >
                   {category.title}
                 </a>

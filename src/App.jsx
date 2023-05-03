@@ -18,6 +18,9 @@ export const App = () => {
 
       return !selectedUser || user.id === selectedUser;
     })
+    .filter(product => product.name
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase()))
     .map((product) => {
       const category = categoriesFromServer
         .find(({ id }) => id === product.categoryId);

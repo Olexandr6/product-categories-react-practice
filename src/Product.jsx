@@ -6,7 +6,10 @@ export const Product = ({ id, name, category, user }) => (
       {id}
     </td>
 
-    <td data-cy="ProductName">{name}</td>
+    <td data-cy="ProductName">
+      {name}
+    </td>
+
     <td data-cy="ProductCategory">
       <span
         role="img"
@@ -15,7 +18,7 @@ export const Product = ({ id, name, category, user }) => (
         {category.icon}
       </span>
       -
-      {category.title}
+      {category.name}
     </td>
 
     <td

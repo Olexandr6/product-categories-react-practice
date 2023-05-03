@@ -21,7 +21,19 @@ const products = productsFromServer.map((product) => {
 export const App = () => {
   const [visibleProducts, setVisibleProducts] = useState(products);
 
-  console.log('123');
+  const filterProducts = (filterType, filterValue) => {
+    switch (filterType) {
+      case 'none':
+        setVisibleProducts(products);
+        break;
+      case 'name':
+        setVisibleProducts(products
+          .filter(product => product.user.name === filterValue));
+        break;
+
+      default: throw new Error('wrong filter type');
+    }
+  };
 
   return (
     <div className="section">
@@ -36,31 +48,21 @@ export const App = () => {
               <a
                 data-cy="FilterAllUsers"
                 href="#/"
+                onClick={() => filterProducts('none')}
               >
                 All
               </a>
 
-              <a
-                data-cy="FilterUser"
-                href="#/"
-              >
-                User 1
-              </a>
-
-              <a
-                data-cy="FilterUser"
-                href="#/"
-                className="is-active"
-              >
-                User 2
-              </a>
-
-              <a
-                data-cy="FilterUser"
-                href="#/"
-              >
-                User 3
-              </a>
+              {usersFromServer.map(user => (
+                <a
+                  data-cy="FilterUser"
+                  href="#/"
+                  key={user.id}
+                  onClick={() => filterProducts('name', user.name)}
+                >
+                  {user.name}
+                </a>
+              ))}
             </p>
 
             <div className="panel-block">

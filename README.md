@@ -33,7 +33,8 @@ Implement as much options below as you can:
 ## Instructions
 - Fork, clone and run `npm i`
 - fix the DEMO LINK below (use your github username and the repo name)
-  - [DEMO LINK](https://MylaCrystal.github.io/<your-repo-name>)
+  - [DEMO LINK](https://MylaCrystal.github.io/product-categories-react-practice
+)
 - implement tasks one by one (You can do it in the `App.jsx`)
 - `commit`, `push` and `deploy` after each task
 - Send a link to your `App.jsx` file to your personal Slack channel (for example #fe_apr22_misha_hrynko)

@@ -4,6 +4,7 @@ import './App.scss';
 import usersFromServer from './api/users';
 import categoriesFromServer from './api/categories';
 import productsFromServer from './api/products';
+import classNames from 'classnames';
 
 const products = productsFromServer.map((product) => {
   const category = categoriesFromServer.find(
@@ -203,7 +204,10 @@ export const App = () => (
 
               return (
                 <tr data-cy="Product">
-                  <td className="has-text-weight-bold" data-cy="ProductId">
+                  <td
+                    className="has-text-link"
+                    data-cy="ProductId"
+                  >
                     {id}
                   </td>
 
@@ -216,72 +220,16 @@ export const App = () => (
 
                   <td
                     data-cy="ProductUser"
-                    className="has-text-link"
+                    className={classNames(
+                      { 'has-text-weight-bold': owner.sex === 'm' },
+                      { 'has-text-danger': owner.sex === 'f' },
+                    )}
                   >
                     {owner.name}
                   </td>
                 </tr>
               );
             })}
-            {/* <tr data-cy="Product">
-              <td className="has-text-weight-bold" data-cy="ProductId">
-                1
-              </td>
-
-              <td data-cy="ProductName">Milk</td>
-              <td data-cy="ProductCategory">
-                <span role="img" aria-label="img">
-                  🍺 - Drinks
-                </span>
-              </td>
-
-              <td
-                data-cy="ProductUser"
-                className="has-text-link"
-              >
-                Max
-              </td>
-            </tr>
-
-            <tr data-cy="Product">
-              <td className="has-text-weight-bold" data-cy="ProductId">
-                2
-              </td>
-
-              <td data-cy="ProductName">Bread</td>
-              <td data-cy="ProductCategory">
-                <span role="img" aria-label="img">
-                  🍞 - Grocery
-                </span>
-              </td>
-
-              <td
-                data-cy="ProductUser"
-                className="has-text-danger"
-              >
-                Anna
-              </td>
-            </tr>
-
-            <tr data-cy="Product">
-              <td className="has-text-weight-bold" data-cy="ProductId">
-                3
-              </td>
-
-              <td data-cy="ProductName">iPhone</td>
-              <td data-cy="ProductCategory">
-                <span role="img" aria-label="img">
-                  💻 - Electronics
-                </span>
-              </td>
-
-              <td
-                data-cy="ProductUser"
-                className="has-text-link"
-              >
-                Roma
-              </td>
-            </tr> */}
           </tbody>
         </table>
       </div>

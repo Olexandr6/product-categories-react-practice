@@ -4,7 +4,6 @@ import './App.scss';
 import usersFromServer from './api/users';
 import categoriesFromServer from './api/categories';
 import productsFromServer from './api/products';
-// import categories from './api/categories';
 
 const products = productsFromServer.map((product) => {
   const category = categoriesFromServer.find(({ id }) => id === product.categoryId) || null;
@@ -33,27 +32,21 @@ const products = productsFromServer.map((product) => {
 
 export const App = () => {
   const [selectedUser, setSelectedUser] = useState(null);
-  const [isFiltered, setIsFiltered] = useState(false);
+  const [searchValue, setSearchValue] = useState('');
 
   const handleFilterUser = (userId) => {
     setSelectedUser(userId);
-
-    const hasFilteredProducts = products.some((product) => {
-      const category = categoriesFromServer.find(({ id }) => id === product.category?.id);
-
-      return category?.ownerId === userId;
-    });
-
-    setIsFiltered(!hasFilteredProducts);
   };
 
-  const filteredProducts = selectedUser
-    ? products.filter((product) => {
-      const category = categoriesFromServer.find(({ id }) => id === product.category.id) || null;
+  const handleSearchInputChange = (event) => {
+    setSearchValue(event.target.value);
+  };
 
-      return category?.ownerId === selectedUser;
-    })
-    : products;
+  const filteredProducts = products.filter((product) => {
+    const category = categoriesFromServer.find(({ id }) => id === product.category.id) || null;
+
+    return (!selectedUser || category?.ownerId === selectedUser) && product.name.toLowerCase().includes(searchValue.toLowerCase());
+  });
 
   return (
     <div className="section">
@@ -69,10 +62,7 @@ export const App = () => {
                 data-cy="FilterAllUsers"
                 href="#/"
                 className={!selectedUser ? 'is-active' : ''}
-                onClick={() => {
-                  handleFilterUser(null);
-                  setIsFiltered(false);
-                }}
+                onClick={() => handleFilterUser(null)}
               >
                 All
               </a>
@@ -97,7 +87,8 @@ export const App = () => {
                   type="text"
                   className="input"
                   placeholder="Search"
-                  value="qwe"
+                  value={searchValue}
+                  onChange={handleSearchInputChange}
                 />
 
                 <span className="icon is-left">
@@ -110,6 +101,7 @@ export const App = () => {
                     data-cy="ClearButton"
                     type="button"
                     className="delete"
+                    onClick={() => setSearchValue('')}
                   />
                 </span>
               </p>
@@ -169,7 +161,7 @@ export const App = () => {
         </div>
 
         <div className="box table-container">
-          {isFiltered ? (
+          {filteredProducts.length === 0 ? (
             <p data-cy="NoMatchingMessage">
               No products matching selected criteria
             </p>

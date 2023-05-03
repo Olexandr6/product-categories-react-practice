@@ -198,7 +198,7 @@ export const App = () => {
 
             <tbody>
               {products.map(product => (
-                <tr data-cy="Product">
+                <tr data-cy="Product" key={product.id}>
                   <td className="has-text-weight-bold" data-cy="ProductId">
                     {product.id}
                   </td>
@@ -208,7 +208,10 @@ export const App = () => {
 
                   <td
                     data-cy="ProductUser"
-                    className="has-text-link"
+                    className={classNames({
+                      'has-text-link': product.owner.sex === 'm',
+                      'has-text-danger': product.owner.sex === 'f',
+                    })}
                   >
                     {product.owner.name}
                   </td>

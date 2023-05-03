@@ -32,15 +32,28 @@ const products = productsFromServer.map((product) => {
 });
 
 export const App = () => {
-  const [selectedUser, setSelectedUser] = useState('');
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [query, setQuery] = useState('');
+
+  const normalizeQuery = query.toLowerCase().trim();
+
+  const isIncludes = (str, substr) => {
+    const normalizeStr = str.toLowerCase();
+
+    return normalizeStr.includes(substr);
+  };
 
   const visibleProducts = products
     .filter((product) => {
-      if (!selectedUser) {
+      if (!selectedUser && !query) {
         return products;
       }
 
-      return (product.user.name === selectedUser);
+      const findSelectedUsers = selectedUser === product.user.name
+        || selectedUser === null;
+      const findProductByQuery = isIncludes(product.name, normalizeQuery);
+
+      return findSelectedUsers && findProductByQuery;
     });
 
   return (
@@ -57,9 +70,9 @@ export const App = () => {
               <a
                 data-cy="FilterAllUsers"
                 href="#/"
-                onClick={() => setSelectedUser('')}
+                onClick={() => setSelectedUser(null)}
                 className={classNames(
-                  { 'is-active': selectedUser === '' },
+                  { 'is-active': selectedUser === null },
                 )}
               >
                 All
@@ -69,6 +82,7 @@ export const App = () => {
                 <a
                   data-cy="FilterUser"
                   href="#/"
+                  key={user.id}
                   onClick={() => setSelectedUser(user.name)}
                   className={classNames(
                     { 'is-active': selectedUser === user.name },
@@ -86,7 +100,8 @@ export const App = () => {
                   type="text"
                   className="input"
                   placeholder="Search"
-                  value="qwe"
+                  value={query}
+                  onChange={event => setQuery(event.target.value)}
                 />
 
                 <span className="icon is-left">
@@ -245,5 +260,5 @@ export const App = () => {
         </div>
       </div>
     </div>
-  )
+  );
 };

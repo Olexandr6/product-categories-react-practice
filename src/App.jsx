@@ -1,247 +1,409 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './App.scss';
+import classNames from 'classnames';
+import usersFromServer from './api/users';
+import categoriesFromServer from './api/categories';
+import productsFromServer from './api/products';
 
-// import usersFromServer from './api/users';
-// import categoriesFromServer from './api/categories';
-// import productsFromServer from './api/products';
+const products = productsFromServer.map((product) => {
+  const category = categoriesFromServer
+    .find(cat => cat.id === product.categoryId);
+  const user = usersFromServer.find(person => person.id === category.ownerId);
 
-// const products = productsFromServer.map((product) => {
-//   const category = null; // find by product.categoryId
-//   const user = null; // find by category.ownerId
+  return {
+    ...product,
+    category,
+    user,
+  };
+});
 
-//   return null;
-// });
+const getPreparedProducts = (
+  userId,
+  query,
+  categories,
+  handleSortByField,
+) => (
+  products
+    .filter((product) => {
+      if (userId) {
+        return product.user.id === userId;
+      }
 
-export const App = () => (
-  <div className="section">
-    <div className="container">
-      <h1 className="title">Product Categories</h1>
+      return true;
+    })
+    .filter(product => product.name.toLowerCase().includes(query.toLowerCase()))
+    .filter((product) => {
+      if (categories.length) {
+        return categories.includes(product.category.id);
+      }
 
-      <div className="block">
-        <nav className="panel">
-          <p className="panel-heading">Filters</p>
+      return true;
+    })
+    .sort(handleSortByField())
+);
 
-          <p className="panel-tabs has-text-weight-bold">
-            <a
-              data-cy="FilterAllUsers"
-              href="#/"
-            >
-              All
-            </a>
+export const App = () => {
+  const [activeUserId, setActiveUserId] = useState(0);
+  const [query, setQuery] = useState('');
+  const [activeCategoriesIds, setActiveCategoriesIds] = useState([]);
+  const [sortField, setSortField] = useState({ id: 0 });
 
-            <a
-              data-cy="FilterUser"
-              href="#/"
-            >
-              User 1
-            </a>
+  const sortFieldName = Object.keys(sortField)[0];
+  const sortFieldValue = Object.values(sortField)[0];
 
-            <a
-              data-cy="FilterUser"
-              href="#/"
-              className="is-active"
-            >
-              User 2
-            </a>
+  const handleSortByField = () => (product1, product2) => {
+    if (sortFieldValue !== 0) {
+      switch (sortFieldName) {
+        case 'id':
+          return (product1.id - product2.id) * sortFieldValue;
 
-            <a
-              data-cy="FilterUser"
-              href="#/"
-            >
-              User 3
-            </a>
-          </p>
+        case 'product':
+          return (product1.name.localeCompare(product2.name)) * sortFieldValue;
 
-          <div className="panel-block">
-            <p className="control has-icons-left has-icons-right">
-              <input
-                data-cy="SearchField"
-                type="text"
-                className="input"
-                placeholder="Search"
-                value="qwe"
-              />
+        case 'category':
+          return (product1.category.title
+            .localeCompare(product2.category.title)) * sortFieldValue;
 
-              <span className="icon is-left">
-                <i className="fas fa-search" aria-hidden="true" />
-              </span>
+        case 'user':
+          return (product1.user.name
+            .localeCompare(product2.user.name)) * sortFieldValue;
 
-              <span className="icon is-right">
-                {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
-                <button
-                  data-cy="ClearButton"
-                  type="button"
-                  className="delete"
-                />
-              </span>
+        default:
+          throw new Error('An error with sort occured!');
+      }
+    }
+
+    return 0;
+  };
+
+  const preparedProducts = getPreparedProducts(
+    activeUserId,
+    query,
+    activeCategoriesIds,
+    handleSortByField,
+  );
+
+  const handleResetFilters = () => {
+    setActiveUserId(0);
+    setQuery('');
+    handleAllCatReset();
+  };
+
+  const handleActiveCatAdd = (id) => {
+    if (activeCategoriesIds.includes(id)) {
+      setActiveCategoriesIds(currentCategories => (
+        currentCategories.filter(category => category !== id)
+      ));
+
+      return;
+    }
+
+    setActiveCategoriesIds(currentCategories => (
+      [...currentCategories, id]
+    ));
+  };
+
+  const handleAllCatReset = () => {
+    setActiveCategoriesIds([]);
+  };
+
+  const handleSortFieldSet = (newSortField) => {
+    setSortField((currentSortState) => {
+      if (newSortField === Object.keys(currentSortState)[0]) {
+        const clicksCount = currentSortState[newSortField];
+
+        if (clicksCount === 1) {
+          return { [newSortField]: -1 };
+        }
+
+        return { [newSortField]: clicksCount + 1 };
+      }
+
+      return { [newSortField]: 1 };
+    });
+  };
+
+  return (
+    <div className="section">
+      <div className="container">
+        <h1 className="title">Product Categories</h1>
+
+        <div className="block">
+          <nav className="panel">
+            <p className="panel-heading">Filters</p>
+
+            <p className="panel-tabs has-text-weight-bold">
+              <a
+                data-cy="FilterAllUsers"
+                href="#/"
+                className={classNames(
+                  { 'is-active': activeUserId === 0 },
+                )}
+                onClick={() => setActiveUserId(0)}
+              >
+                All
+              </a>
+
+              {usersFromServer.map((user) => {
+                const { id, name } = user;
+
+                return (
+                  <a
+                    data-cy="FilterUser"
+                    href="#/"
+                    className={classNames(
+                      { 'is-active': id === activeUserId },
+                    )}
+                    onClick={() => setActiveUserId(id)}
+                    key={id}
+                  >
+                    {name}
+                  </a>
+                );
+              })}
             </p>
-          </div>
 
-          <div className="panel-block is-flex-wrap-wrap">
-            <a
-              href="#/"
-              data-cy="AllCategories"
-              className="button is-success mr-6 is-outlined"
-            >
-              All
-            </a>
+            <div className="panel-block">
+              <p className="control has-icons-left has-icons-right">
+                <input
+                  data-cy="SearchField"
+                  type="text"
+                  className="input"
+                  placeholder="Search"
+                  value={query}
+                  onChange={event => setQuery(event.target.value)}
+                />
 
-            <a
-              data-cy="Category"
-              className="button mr-2 my-1 is-info"
-              href="#/"
-            >
-              Category 1
-            </a>
-
-            <a
-              data-cy="Category"
-              className="button mr-2 my-1"
-              href="#/"
-            >
-              Category 2
-            </a>
-
-            <a
-              data-cy="Category"
-              className="button mr-2 my-1 is-info"
-              href="#/"
-            >
-              Category 3
-            </a>
-            <a
-              data-cy="Category"
-              className="button mr-2 my-1"
-              href="#/"
-            >
-              Category 4
-            </a>
-          </div>
-
-          <div className="panel-block">
-            <a
-              data-cy="ResetAllButton"
-              href="#/"
-              className="button is-link is-outlined is-fullwidth"
-            >
-              Reset all filters
-            </a>
-          </div>
-        </nav>
-      </div>
-
-      <div className="box table-container">
-        <p data-cy="NoMatchingMessage">
-          No products matching selected criteria
-        </p>
-
-        <table
-          data-cy="ProductTable"
-          className="table is-striped is-narrow is-fullwidth"
-        >
-          <thead>
-            <tr>
-              <th>
-                <span className="is-flex is-flex-wrap-nowrap">
-                  ID
-
-                  <a href="#/">
-                    <span className="icon">
-                      <i data-cy="SortIcon" className="fas fa-sort" />
-                    </span>
-                  </a>
+                <span className="icon is-left">
+                  <i className="fas fa-search" aria-hidden="true" />
                 </span>
-              </th>
 
-              <th>
-                <span className="is-flex is-flex-wrap-nowrap">
-                  Product
+                {query && (
+                  <span className="icon is-right">
+                    {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
+                    <button
+                      data-cy="ClearButton"
+                      type="button"
+                      className="delete"
+                      onClick={() => setQuery('')}
+                    />
+                  </span>
+                )}
+              </p>
+            </div>
 
-                  <a href="#/">
-                    <span className="icon">
-                      <i data-cy="SortIcon" className="fas fa-sort-down" />
-                    </span>
-                  </a>
-                </span>
-              </th>
-
-              <th>
-                <span className="is-flex is-flex-wrap-nowrap">
-                  Category
-
-                  <a href="#/">
-                    <span className="icon">
-                      <i data-cy="SortIcon" className="fas fa-sort-up" />
-                    </span>
-                  </a>
-                </span>
-              </th>
-
-              <th>
-                <span className="is-flex is-flex-wrap-nowrap">
-                  User
-
-                  <a href="#/">
-                    <span className="icon">
-                      <i data-cy="SortIcon" className="fas fa-sort" />
-                    </span>
-                  </a>
-                </span>
-              </th>
-            </tr>
-          </thead>
-
-          <tbody>
-            <tr data-cy="Product">
-              <td className="has-text-weight-bold" data-cy="ProductId">
-                1
-              </td>
-
-              <td data-cy="ProductName">Milk</td>
-              <td data-cy="ProductCategory">🍺 - Drinks</td>
-
-              <td
-                data-cy="ProductUser"
-                className="has-text-link"
+            <div className="panel-block is-flex-wrap-wrap">
+              <a
+                href="#/"
+                data-cy="AllCategories"
+                className={classNames(
+                  'button',
+                  'is-success',
+                  'mr-6',
+                  { 'is-outlined': activeCategoriesIds.length },
+                )}
+                onClick={handleAllCatReset}
               >
-                Max
-              </td>
-            </tr>
+                All
+              </a>
 
-            <tr data-cy="Product">
-              <td className="has-text-weight-bold" data-cy="ProductId">
-                2
-              </td>
+              {categoriesFromServer.map((category) => {
+                const { id, title } = category;
 
-              <td data-cy="ProductName">Bread</td>
-              <td data-cy="ProductCategory">🍞 - Grocery</td>
+                return (
+                  <a
+                    data-cy="Category"
+                    className={classNames(
+                      'button',
+                      'mr-2',
+                      'my-1',
+                      { 'is-info': activeCategoriesIds.includes(id) },
+                    )}
+                    href="#/"
+                    onClick={() => handleActiveCatAdd(id)}
+                    key={id}
+                  >
+                    {title}
+                  </a>
+                );
+              })}
+            </div>
 
-              <td
-                data-cy="ProductUser"
-                className="has-text-danger"
+            <div className="panel-block">
+              <a
+                data-cy="ResetAllButton"
+                href="#/"
+                className="button is-link is-outlined is-fullwidth"
+                onClick={handleResetFilters}
               >
-                Anna
-              </td>
-            </tr>
+                Reset all filters
+              </a>
+            </div>
+          </nav>
+        </div>
 
-            <tr data-cy="Product">
-              <td className="has-text-weight-bold" data-cy="ProductId">
-                3
-              </td>
+        <div className="box table-container">
+          {!preparedProducts.length && (
+            <p data-cy="NoMatchingMessage">
+              No products matching selected criteria
+            </p>
+          )}
 
-              <td data-cy="ProductName">iPhone</td>
-              <td data-cy="ProductCategory">💻 - Electronics</td>
+          {preparedProducts.length > 0 && (
+            <table
+              data-cy="ProductTable"
+              className="table is-striped is-narrow is-fullwidth"
+            >
+              <thead>
+                <tr>
+                  <th>
+                    <span className="is-flex is-flex-wrap-nowrap">
+                      ID
 
-              <td
-                data-cy="ProductUser"
-                className="has-text-link"
-              >
-                Roma
-              </td>
-            </tr>
-          </tbody>
-        </table>
+                      <a
+                        href="#/"
+                        onClick={() => handleSortFieldSet('id')}
+                      >
+                        <span className="icon">
+                          <i
+                            data-cy="SortIcon"
+                            className={classNames(
+                              'fas',
+                              { 'fa-sort': sortFieldValue === 0
+                                || sortFieldName !== 'id' },
+                              { 'fa-sort-down': sortFieldValue === -1
+                                && sortFieldName === 'id' },
+                              { 'fa-sort-up': sortFieldValue === 1
+                                && sortFieldName === 'id' },
+                            )}
+                          />
+                        </span>
+                      </a>
+                    </span>
+                  </th>
+
+                  <th>
+                    <span className="is-flex is-flex-wrap-nowrap">
+                      Product
+
+                      <a
+                        href="#/"
+                        onClick={() => handleSortFieldSet('product')}
+                      >
+                        <span className="icon">
+                          <i
+                            data-cy="SortIcon"
+                            className={classNames(
+                              'fas',
+                              { 'fa-sort': sortFieldValue === 0
+                                || sortFieldName !== 'product' },
+                              { 'fa-sort-down': sortFieldValue === -1
+                                && sortFieldName === 'product' },
+                              { 'fa-sort-up': sortFieldValue === 1
+                                && sortFieldName === 'product' },
+                            )}
+                          />
+                        </span>
+                      </a>
+                    </span>
+                  </th>
+
+                  <th>
+                    <span className="is-flex is-flex-wrap-nowrap">
+                      Category
+
+                      <a
+                        href="#/"
+                        onClick={() => handleSortFieldSet('category')}
+                      >
+                        <span className="icon">
+                          <i
+                            data-cy="SortIcon"
+                            className={classNames(
+                              'fas',
+                              { 'fa-sort': sortFieldValue === 0
+                                || sortFieldName !== 'category' },
+                              { 'fa-sort-down': sortFieldValue === -1
+                                && sortFieldName === 'category' },
+                              { 'fa-sort-up': sortFieldValue === 1
+                                && sortFieldName === 'category' },
+                            )}
+                          />
+                        </span>
+                      </a>
+                    </span>
+                  </th>
+
+                  <th>
+                    <span className="is-flex is-flex-wrap-nowrap">
+                      User
+
+                      <a
+                        href="#/"
+                        onClick={() => handleSortFieldSet('user')}
+                      >
+                        <span className="icon">
+                          <i
+                            data-cy="SortIcon"
+                            className={classNames(
+                              'fas',
+                              { 'fa-sort': sortFieldValue === 0
+                                || sortFieldName !== 'user' },
+                              { 'fa-sort-down': sortFieldValue === -1
+                                && sortFieldName === 'user' },
+                              { 'fa-sort-up': sortFieldValue === 1
+                                && sortFieldName === 'user' },
+                            )}
+                          />
+                        </span>
+                      </a>
+                    </span>
+                  </th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {preparedProducts.map((product) => {
+                  const {
+                    id,
+                    name,
+                    user,
+                    category,
+                  } = product;
+
+                  return (
+                    <tr data-cy="Product" key={id}>
+                      <td className="has-text-weight-bold" data-cy="ProductId">
+                        {id}
+                      </td>
+
+                      <td data-cy="ProductName">
+                        {name}
+                      </td>
+
+                      <td data-cy="ProductCategory">
+                        <span role="img" aria-label={category.title}>
+                          {`${category.icon} - ${category.title}`}
+                        </span>
+                      </td>
+
+                      <td
+                        data-cy="ProductUser"
+                        className={classNames(
+                          { 'has-text-link': user.sex === 'm' },
+                          { 'has-text-danger': user.sex === 'f' },
+                        )}
+                      >
+                        {user.name}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          )}
+        </div>
       </div>
     </div>
-  </div>
-);
+  );
+};

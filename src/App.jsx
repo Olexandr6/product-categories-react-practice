@@ -23,10 +23,19 @@ const products = productsFromServer.map((product) => {
   };
 });
 
+function isIncludes(searchString, string) {
+  return string.toLowerCase().includes(searchString.toLowerCase());
+}
+
 export const App = () => {
   // eslint-disable-next-line no-unused-vars
   const [currentProducts, setcurrentProducts] = useState(products);
   const [currentFilter, setCurrentFilter] = useState('All');
+  const [searchString, setSearchString] = useState('');
+
+  const filteredProducts = currentProducts.filter(currentProduct => (
+    isIncludes(searchString, currentProduct.name)
+  ));
 
   return (
     <div className="section">
@@ -86,7 +95,10 @@ export const App = () => {
                   type="text"
                   className="input"
                   placeholder="Search"
-                  value="qwe"
+                  value={searchString}
+                  onChange={(event) => {
+                    setSearchString(event.target.value);
+                  }}
                 />
 
                 <span className="icon is-left">
@@ -208,7 +220,7 @@ export const App = () => {
 
             <tbody>
               {
-                currentProducts.map((product) => {
+                filteredProducts.map((product) => {
                   const {
                     id,
                     name,

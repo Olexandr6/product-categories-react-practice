@@ -18,12 +18,21 @@ export const App = () => {
     };
   });
 
-  const [selectedUserFilter, setSelectedUserFilter] = useState(null);
+  const [selectedUserFilter, setSelectedUserFilter] = useState(0);
+  const [searchByWord, setSearchByWord] = useState('');
 
-  const filteredProducts = selectedUserFilter === null
-    ? products
-    : products
-      .filter(product => product.categories.ownerId === selectedUserFilter);
+  let filteredProducts;
+
+  if (selectedUserFilter === null) {
+    filteredProducts = products
+      .filter(product => product.name
+        .toLowerCase().includes(searchByWord.toLowerCase()));
+  } else {
+    filteredProducts = products
+      .filter(product => product.categories.ownerId === selectedUserFilter)
+      .filter(product => product.name
+        .toLowerCase().includes(searchByWord.toLowerCase()));
+  }
 
   return (
     <div className="section">
@@ -64,7 +73,8 @@ export const App = () => {
                   type="text"
                   className="input"
                   placeholder="Search"
-                  value="qwe"
+                  value={searchByWord}
+                  onChange={(event => setSearchByWord(event.target.value))}
                 />
 
                 <span className="icon is-left">
@@ -72,11 +82,11 @@ export const App = () => {
                 </span>
 
                 <span className="icon is-right">
-                  {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
                   <button
                     data-cy="ClearButton"
                     type="button"
                     className="delete"
+                    onChange={() => setSearchByWord('')}
                   />
                 </span>
               </p>
@@ -136,10 +146,6 @@ export const App = () => {
         </div>
 
         <div className="box table-container">
-          <p data-cy="NoMatchingMessage">
-            No products matching selected criteria
-          </p>
-
           <table
             data-cy="ProductTable"
             className="table is-striped is-narrow is-fullwidth"

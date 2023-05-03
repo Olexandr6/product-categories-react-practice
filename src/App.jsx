@@ -1,16 +1,20 @@
 import React from 'react';
 import './App.scss';
 
-// import usersFromServer from './api/users';
-// import categoriesFromServer from './api/categories';
-// import productsFromServer from './api/products';
+import usersFromServer from './api/users';
+import categoriesFromServer from './api/categories';
+import productsFromServer from './api/products';
 
-// const products = productsFromServer.map((product) => {
-//   const category = null; // find by product.categoryId
-//   const user = null; // find by category.ownerId
+const products = productsFromServer.map((product) => {
+  const category = categoriesFromServer.find(
+    categ => categ.id === product.categoryId,
+  );
+  const user = usersFromServer.find(
+    currentUser => currentUser.id === category.ownerId,
+  );
 
-//   return null;
-// });
+  return { ...product, ...category, owner: { ...user } };
+});
 
 export const App = () => (
   <div className="section">
@@ -192,13 +196,44 @@ export const App = () => (
           </thead>
 
           <tbody>
-            <tr data-cy="Product">
+            {products.map((product) => {
+              const {
+                id, name, title, icon, owner,
+              } = product;
+
+              return (
+                <tr data-cy="Product">
+                  <td className="has-text-weight-bold" data-cy="ProductId">
+                    {id}
+                  </td>
+
+                  <td data-cy="ProductName">{name}</td>
+                  <td data-cy="ProductCategory">
+                    <span role="img" aria-label="img">
+                      {`${icon} - ${title}`}
+                    </span>
+                  </td>
+
+                  <td
+                    data-cy="ProductUser"
+                    className="has-text-link"
+                  >
+                    {owner.name}
+                  </td>
+                </tr>
+              );
+            })}
+            {/* <tr data-cy="Product">
               <td className="has-text-weight-bold" data-cy="ProductId">
                 1
               </td>
 
               <td data-cy="ProductName">Milk</td>
-              <td data-cy="ProductCategory">🍺 - Drinks</td>
+              <td data-cy="ProductCategory">
+                <span role="img" aria-label="img">
+                  🍺 - Drinks
+                </span>
+              </td>
 
               <td
                 data-cy="ProductUser"
@@ -214,7 +249,11 @@ export const App = () => (
               </td>
 
               <td data-cy="ProductName">Bread</td>
-              <td data-cy="ProductCategory">🍞 - Grocery</td>
+              <td data-cy="ProductCategory">
+                <span role="img" aria-label="img">
+                  🍞 - Grocery
+                </span>
+              </td>
 
               <td
                 data-cy="ProductUser"
@@ -230,7 +269,11 @@ export const App = () => (
               </td>
 
               <td data-cy="ProductName">iPhone</td>
-              <td data-cy="ProductCategory">💻 - Electronics</td>
+              <td data-cy="ProductCategory">
+                <span role="img" aria-label="img">
+                  💻 - Electronics
+                </span>
+              </td>
 
               <td
                 data-cy="ProductUser"
@@ -238,7 +281,7 @@ export const App = () => (
               >
                 Roma
               </td>
-            </tr>
+            </tr> */}
           </tbody>
         </table>
       </div>

@@ -153,6 +153,10 @@ export const App = () => {
                 data-cy="ResetAllButton"
                 href="#/"
                 className="button is-link is-outlined is-fullwidth"
+                onClick={() => {
+                  setSelectedUser(null);
+                  setSearchValue('');
+                }}
               >
                 Reset all filters
               </a>

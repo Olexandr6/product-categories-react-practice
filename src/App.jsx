@@ -20,6 +20,7 @@ const products = productsFromServer.map((product) => {
 export const App = () => {
   const [selectedUserId, setSelectedUserId] = useState(0);
   const [query, setQuery] = useState('');
+  const [currentCategory, setCurrentCategory] = useState([]);
 
   const handleReset = () => {
     setSelectedUserId(0);
@@ -41,6 +42,12 @@ export const App = () => {
 
         return name.toLowerCase().includes(loverCaseQuery);
       },
+    );
+  }
+
+  if (currentCategory.length) {
+    visibleProducts = visibleProducts.filter(
+      ({ category }) => currentCategory.includes(category.id),
     );
   }
 
@@ -110,40 +117,36 @@ export const App = () => {
                 href="#/"
                 data-cy="AllCategories"
                 className="button is-success mr-6 is-outlined"
+                onClick={() => setCurrentCategory([])}
               >
                 All
               </a>
 
-              <a
-                data-cy="Category"
-                className="button mr-2 my-1 is-info"
-                href="#/"
-              >
-                Category 1
-              </a>
-
-              <a
-                data-cy="Category"
-                className="button mr-2 my-1"
-                href="#/"
-              >
-                Category 2
-              </a>
-
-              <a
-                data-cy="Category"
-                className="button mr-2 my-1 is-info"
-                href="#/"
-              >
-                Category 3
-              </a>
-              <a
-                data-cy="Category"
-                className="button mr-2 my-1"
-                href="#/"
-              >
-                Category 4
-              </a>
+              {categoriesFromServer.map(({ id, title }) => (
+                <a
+                  data-cy="Category"
+                  className={classNames(
+                    'button', 'mr-2', 'my-1',
+                    { 'is-info': currentCategory.includes(id) },
+                  )}
+                  href="#/"
+                  key={id}
+                  // onClick={currentCategory.includes(id)
+                  //   ? () => setCurrentCategory(
+                  //     prevCtegories => prevCtegories
+                  //       .filter(category => category.id !== id),
+                  //   )
+                  //   : () => setCurrentCategory(
+                  //     prevCtegories => [...prevCtegories, id],
+                  //   )
+                  // }
+                  onClick={() => setCurrentCategory(
+                    prevCategories => [...prevCategories, id],
+                  )}
+                >
+                  {title}
+                </a>
+              ))}
             </div>
 
             <div className="panel-block">

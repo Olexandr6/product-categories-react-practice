@@ -22,18 +22,27 @@ const products = productsFromServer.map((product) => {
   };
 });
 
-function filterProducts(allProducts, userFilter) {
-  if (userFilter === 'All') {
-    return allProducts;
+function filterProducts(allProducts, userFilter, userSearch) {
+  let filteredProducts = JSON.parse(JSON.stringify(allProducts));
+
+  if (userFilter !== 'All') {
+    filteredProducts = filteredProducts.filter(product => (
+      product.user.name === userFilter
+    ));
   }
 
-  return allProducts.filter(product => product.user.name === userFilter);
+  filteredProducts = filteredProducts.filter(product => (
+    product.user.name.toLowerCase().includes(userSearch.toLowerCase().trim())
+  ));
+
+  return filteredProducts;
 }
 
 export const App = () => {
   const [userFilter, setUserFilter] = useState('All');
+  const [userSearch, setUserSearch] = useState('');
 
-  const newProducts = filterProducts(products, userFilter);
+  const newProducts = filterProducts(products, userFilter, userSearch);
 
   return (
     <div className="section">
@@ -46,6 +55,7 @@ export const App = () => {
 
             <p className="panel-tabs has-text-weight-bold">
               <a
+                className={userFilter === 'All' ? 'is-active' : ''}
                 data-cy="FilterAllUsers"
                 href="#/"
                 onClick={() => setUserFilter('All')}
@@ -72,7 +82,8 @@ export const App = () => {
                   type="text"
                   className="input"
                   placeholder="Search"
-                  value="qwe"
+                  value={userSearch}
+                  onChange={event => setUserSearch(event.target.value)}
                 />
 
                 <span className="icon is-left">
@@ -81,11 +92,14 @@ export const App = () => {
 
                 <span className="icon is-right">
                   {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
-                  <button
-                    data-cy="ClearButton"
-                    type="button"
-                    className="delete"
-                  />
+                  {userSearch && (
+                    <button
+                      data-cy="ClearButton"
+                      type="button"
+                      className="delete"
+                      onClick={() => setUserSearch('')}
+                    />
+                  )}
                 </span>
               </p>
             </div>

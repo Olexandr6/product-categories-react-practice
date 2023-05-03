@@ -198,7 +198,15 @@ export const App = () => (
               </td>
 
               <td data-cy="ProductName">Milk</td>
-              <td data-cy="ProductCategory">🍺 - Drinks</td>
+              <td data-cy="ProductCategory">
+                <span
+                  role="img"
+                  aria-label="drinks"
+                >
+                  🍺
+                </span>
+                - Drinks
+              </td>
 
               <td
                 data-cy="ProductUser"
@@ -214,7 +222,15 @@ export const App = () => (
               </td>
 
               <td data-cy="ProductName">Bread</td>
-              <td data-cy="ProductCategory">🍞 - Grocery</td>
+              <td data-cy="ProductCategory">
+                <span
+                  role="img"
+                  aria-label="grocery"
+                >
+                  🍞
+                </span>
+                - Grocery
+              </td>
 
               <td
                 data-cy="ProductUser"
@@ -230,7 +246,15 @@ export const App = () => (
               </td>
 
               <td data-cy="ProductName">iPhone</td>
-              <td data-cy="ProductCategory">💻 - Electronics</td>
+              <td data-cy="ProductCategory">
+                <span
+                  role="img"
+                  aria-label="electronics"
+                >
+                  💻
+                </span>
+                - Electronics
+              </td>
 
               <td
                 data-cy="ProductUser"

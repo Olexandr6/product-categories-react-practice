@@ -158,107 +158,116 @@ export const App = () => {
         </div>
 
         <div className="box table-container">
-          {filteredProducts.length === 0 && (
-            <div>
-              No products matching selected criteria
-            </div>
-          )}
+          {filteredProducts.length === 0
+            ? (
+              <div>
+                No products matching selected criteria
+              </div>
+            )
+            : (
+              <table
+                data-cy="ProductTable"
+                className="table is-striped is-narrow is-fullwidth"
+              >
+                <thead>
+                  <tr>
+                    <th>
+                      <span className="is-flex is-flex-wrap-nowrap">
+                        ID
 
-          <table
-            data-cy="ProductTable"
-            className="table is-striped is-narrow is-fullwidth"
-          >
-            <thead>
-              <tr>
-                <th>
-                  <span className="is-flex is-flex-wrap-nowrap">
-                    ID
-
-                    <a href="#/">
-                      <span className="icon">
-                        <i data-cy="SortIcon" className="fas fa-sort" />
+                        <a href="#/">
+                          <span className="icon">
+                            <i data-cy="SortIcon" className="fas fa-sort" />
+                          </span>
+                        </a>
                       </span>
-                    </a>
-                  </span>
-                </th>
+                    </th>
 
-                <th>
-                  <span className="is-flex is-flex-wrap-nowrap">
-                    Product
+                    <th>
+                      <span className="is-flex is-flex-wrap-nowrap">
+                        Product
 
-                    <a href="#/">
-                      <span className="icon">
-                        <i data-cy="SortIcon" className="fas fa-sort-down" />
+                        <a href="#/">
+                          <span className="icon">
+                            <i
+                              data-cy="SortIcon"
+                              className="fas fa-sort-down"
+                            />
+                          </span>
+                        </a>
                       </span>
-                    </a>
-                  </span>
-                </th>
+                    </th>
 
-                <th>
-                  <span className="is-flex is-flex-wrap-nowrap">
-                    Category
+                    <th>
+                      <span className="is-flex is-flex-wrap-nowrap">
+                        Category
 
-                    <a href="#/">
-                      <span className="icon">
-                        <i data-cy="SortIcon" className="fas fa-sort-up" />
+                        <a href="#/">
+                          <span className="icon">
+                            <i data-cy="SortIcon" className="fas fa-sort-up" />
+                          </span>
+                        </a>
                       </span>
-                    </a>
-                  </span>
-                </th>
+                    </th>
 
-                <th>
-                  <span className="is-flex is-flex-wrap-nowrap">
-                    User
+                    <th>
+                      <span className="is-flex is-flex-wrap-nowrap">
+                        User
 
-                    <a href="#/">
-                      <span className="icon">
-                        <i data-cy="SortIcon" className="fas fa-sort" />
+                        <a href="#/">
+                          <span className="icon">
+                            <i data-cy="SortIcon" className="fas fa-sort" />
+                          </span>
+                        </a>
                       </span>
-                    </a>
-                  </span>
-                </th>
-              </tr>
-            </thead>
+                    </th>
+                  </tr>
+                </thead>
 
-            <tbody>
-              {
-                filteredProducts.map((product) => {
-                  const {
-                    id,
-                    name,
-                    category,
-                    user,
-                  } = product;
+                <tbody>
+                  {
+                    filteredProducts.map((product) => {
+                      const {
+                        id,
+                        name,
+                        category,
+                        user,
+                      } = product;
 
-                  const { icon, title } = category;
-                  const { sex, name: userName } = user;
+                      const { icon, title } = category;
+                      const { sex, name: userName } = user;
 
-                  return (
-                    <tr data-cy="Product" key={id}>
-                      <td className="has-text-weight-bold" data-cy="ProductId">
-                        {id}
-                      </td>
+                      return (
+                        <tr data-cy="Product" key={id}>
+                          <td
+                            className="has-text-weight-bold"
+                            data-cy="ProductId"
+                          >
+                            {id}
+                          </td>
 
-                      <td data-cy="ProductName">{name}</td>
+                          <td data-cy="ProductName">{name}</td>
 
-                      <td data-cy="ProductCategory">
-                        {`${icon} - ${title}`}
-                      </td>
+                          <td data-cy="ProductCategory">
+                            {`${icon} - ${title}`}
+                          </td>
 
-                      <td
-                        data-cy="ProductUser"
-                        className={classNames({
-                          'has-text-link': sex === 'm',
-                          'has-text-danger': sex === 'f',
-                        })}
-                      >
-                        {userName}
-                      </td>
-                    </tr>
-                  );
-                })}
-            </tbody>
-          </table>
+                          <td
+                            data-cy="ProductUser"
+                            className={classNames({
+                              'has-text-link': sex === 'm',
+                              'has-text-danger': sex === 'f',
+                            })}
+                          >
+                            {userName}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                </tbody>
+              </table>
+            )
+          }
         </div>
       </div>
     </div>

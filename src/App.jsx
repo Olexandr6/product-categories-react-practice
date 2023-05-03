@@ -20,19 +20,27 @@ const products = productsFromServer.map((product) => {
 
 export const App = () => {
   const [visibleProducts, setVisibleProducts] = useState(products);
+  const [chosenUserName, setChosenUser] = useState('');
+  const [inputQuery, setInputQuery] = useState('');
 
-  const filterProducts = (filterType, filterValue) => {
-    switch (filterType) {
-      case 'none':
-        setVisibleProducts(products);
-        break;
-      case 'name':
-        setVisibleProducts(products
-          .filter(product => product.user.name === filterValue));
-        break;
+  const handleQueryChange = (event) => {
+    const { value } = event.target;
 
-      default: throw new Error('wrong filter type');
-    }
+    setInputQuery(value);
+    setVisibleProducts(visibleProducts
+      .filter(product => product.name.toLowerCase()
+        .includes(value.toLowerCase())));
+  };
+
+  // const filterProduct = () => {
+  //   setVisibleProducts(products
+  //     .filter(product => product.user.name === user.name));
+  // };
+
+  const handleReset = () =>{
+    setChosenUser('');
+    setInputQuery('')
+    setVisibleProducts(products);
   };
 
   return (
@@ -46,19 +54,28 @@ export const App = () => {
 
             <p className="panel-tabs has-text-weight-bold">
               <a
+                className={cn({ 'is-active': chosenUserName === '' })}
                 data-cy="FilterAllUsers"
                 href="#/"
-                onClick={() => filterProducts('none')}
+                onClick={() => {
+                  setChosenUser('');
+                  setVisibleProducts(products);
+                }}
               >
                 All
               </a>
 
               {usersFromServer.map(user => (
                 <a
+                  className={cn({ 'is-active': chosenUserName === user.name })}
                   data-cy="FilterUser"
                   href="#/"
                   key={user.id}
-                  onClick={() => filterProducts('name', user.name)}
+                  onClick={() => {
+                    setChosenUser(user.name);
+                    setVisibleProducts(products
+                      .filter(product => product.user.name === user.name));
+                  }}
                 >
                   {user.name}
                 </a>
@@ -72,7 +89,8 @@ export const App = () => {
                   type="text"
                   className="input"
                   placeholder="Search"
-                  value="qwe"
+                  value={inputQuery}
+                  onChange={handleQueryChange}
                 />
 
                 <span className="icon is-left">
@@ -85,6 +103,10 @@ export const App = () => {
                     data-cy="ClearButton"
                     type="button"
                     className="delete"
+                    onClick={() => {
+                      setInputQuery('');
+                      setVisibleProducts(products);
+                    }}
                   />
                 </span>
               </p>
@@ -136,6 +158,7 @@ export const App = () => {
                 data-cy="ResetAllButton"
                 href="#/"
                 className="button is-link is-outlined is-fullwidth"
+                onClick={handleReset}
               >
                 Reset all filters
               </a>

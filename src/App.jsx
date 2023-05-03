@@ -86,7 +86,7 @@ export const App = () => {
                 data-cy="FilterAllUsers"
                 href="#/"
                 className={classNames({
-                  'is-active': setUserId === null,
+                  'is-active': setUserId !== null,
                 })}
                 onClick={() => setUserId(null)}
               >
@@ -140,7 +140,7 @@ export const App = () => {
                 data-cy="AllCategories"
                 className={classNames(
                   'button is-outlined mr-6', {
-                    'is-success': !setCategoryId.length,
+                    'is-success': setCategoryId.length,
                   },
                 )}
                 onClick={() => setCategoryId([])}

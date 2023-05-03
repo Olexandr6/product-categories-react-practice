@@ -177,11 +177,12 @@ export const App = () => {
             </div>
           </nav>
         </div>
-
         <div className="box table-container">
-          <p data-cy="NoMatchingMessage">
-            No products matching selected criteria
-          </p>
+          {!visibleProduct.length && (
+            <p data-cy="NoMatchingMessage">
+              No products matching selected criteria
+            </p>
+          )}
 
           <table
             data-cy="ProductTable"
@@ -207,7 +208,7 @@ export const App = () => {
 
                     <a href="#/">
                       <span className="icon">
-                        <i data-cy="SortIcon" className="fas fa-sort-down" />
+                        <i data-cy="SortIcon" className="fas fa-sort" />
                       </span>
                     </a>
                   </span>
@@ -219,7 +220,7 @@ export const App = () => {
 
                     <a href="#/">
                       <span className="icon">
-                        <i data-cy="SortIcon" className="fas fa-sort-up" />
+                        <i data-cy="SortIcon" className="fas fa-sort" />
                       </span>
                     </a>
                   </span>

@@ -21,6 +21,11 @@ export const App = () => {
   const [selectedUserId, setSelectedUserId] = useState(0);
   const [query, setQuery] = useState('');
 
+  const handleReset = () => {
+    setSelectedUserId(0);
+    setQuery('');
+  };
+
   let visibleProducts = [...products];
 
   if (selectedUserId) {
@@ -146,6 +151,7 @@ export const App = () => {
                 data-cy="ResetAllButton"
                 href="#/"
                 className="button is-link is-outlined is-fullwidth"
+                onClick={handleReset}
               >
                 Reset all filters
               </a>

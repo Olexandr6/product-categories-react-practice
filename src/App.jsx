@@ -222,7 +222,10 @@ export const App = () => (
 
                 <td
                   data-cy="ProductUser"
-                  className={product.user.sex === 'm' ? 'has-text-link' : 'has-text-danger'}
+                  className={product.user.sex === 'm'
+                    ? 'has-text-link'
+                    : 'has-text-danger'
+                  }
                 >
                   {product.user.name}
                 </td>

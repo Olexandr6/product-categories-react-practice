@@ -34,6 +34,7 @@ const products = productsFromServer.map((product) => {
 export const App = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [query, setQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState(null);
 
   const normalizeQuery = query.toLowerCase().trim();
 
@@ -129,11 +130,25 @@ export const App = () => {
                 href="#/"
                 data-cy="AllCategories"
                 className="button is-success mr-6 is-outlined"
+                onClick={() => setSelectedCategory(null)}
               >
                 All
               </a>
 
-              <a
+              {categoriesFromServer.map(category => (
+                <a
+                  data-cy="Category"
+                  className={classNames('button', 'mr-2', 'my-1',
+                    { 'is-info': selectedCategory === category.title })
+                  }
+                  href="#/"
+                  onClick={() => setSelectedCategory(category.name)}
+                >
+                  {category.title}
+                </a>
+              ))}
+
+              {/* <a
                 data-cy="Category"
                 className="button mr-2 my-1 is-info"
                 href="#/"
@@ -162,7 +177,7 @@ export const App = () => {
                 href="#/"
               >
                 Category 4
-              </a>
+              </a> */}
             </div>
 
             <div className="panel-block">
@@ -179,7 +194,7 @@ export const App = () => {
         </div>
 
         <div className="box table-container">
-          {visibleProducts.length === 0
+          {!visibleProducts.length
             ? (
               <p data-cy="NoMatchingMessage">
                 No products matching selected criteria

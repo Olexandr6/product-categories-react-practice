@@ -30,6 +30,7 @@ const getColorForUser = sex => (
 export const App = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [filteredProducts, setFilteredProducts] = useState(products);
+  const [query, setQuery] = useState('');
 
   const handleUserFilter = (user) => {
     setSelectedUser(user);
@@ -37,13 +38,24 @@ export const App = () => {
 
   useEffect(() => {
     if (selectedUser === null) {
-      setFilteredProducts(products);
+      setFilteredProducts(products.filter(
+        product => product.name.toLowerCase().includes(query.toLowerCase()),
+      ));
     } else {
       setFilteredProducts(products.filter(
-        product => product.user.id === selectedUser.id,
+        product => product.user.id === selectedUser.id
+          && product.name.toLowerCase().includes(query.toLowerCase()),
       ));
     }
-  }, [selectedUser]);
+  }, [selectedUser, query]);
+
+  const handleInputChange = (event) => {
+    setQuery(event.target.value);
+  };
+
+  const handleClearButtonClick = () => {
+    setQuery('');
+  };
 
   return (
     <div className="section">
@@ -84,7 +96,8 @@ export const App = () => {
                   type="text"
                   className="input"
                   placeholder="Search"
-                  value="qwe"
+                  value={query}
+                  onChange={handleInputChange}
                 />
 
                 <span className="icon is-left">
@@ -96,7 +109,8 @@ export const App = () => {
                   <button
                     data-cy="ClearButton"
                     type="button"
-                    className="delete"
+                    className={query === '' ? 'is-hidden' : 'delete'}
+                    onClick={handleClearButtonClick}
                   />
                 </span>
               </p>

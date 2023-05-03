@@ -27,14 +27,25 @@ const products = productsFromServer.map((product) => {
 
 export const App = () => {
   const [selectedUserId, setSelectedUserId] = useState(null);
+  const [searchInputValue, setSearchInputValue] = useState('');
 
   const handleClickUser = (UserId) => {
     setSelectedUserId(UserId);
   };
 
-  const visiableProducts = selectedUserId
-    ? products.filter(product => product.userId === selectedUserId)
-    : products;
+  const inputValueLowerCase = searchInputValue.toLowerCase();
+
+  const filteredProductsByName = products.filter(product => (
+    product.productName.toLowerCase().includes(inputValueLowerCase)
+  ));
+
+  const filteredProductsByUser = filteredProductsByName.filter(product => (
+    product.userId === selectedUserId
+  ));
+
+  const visibleProducts = selectedUserId
+    ? filteredProductsByUser
+    : filteredProductsByName;
 
   return (
     <div className="section">
@@ -82,7 +93,8 @@ export const App = () => {
                   type="text"
                   className="input"
                   placeholder="Search"
-                  value="qwe"
+                  value={searchInputValue}
+                  onChange={event => setSearchInputValue(event.target.value)}
                 />
 
                 <span className="icon is-left">
@@ -91,11 +103,14 @@ export const App = () => {
 
                 <span className="icon is-right">
                   {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
+                  {searchInputValue && (
                   <button
                     data-cy="ClearButton"
                     type="button"
                     className="delete"
+                    onClick={() => setSearchInputValue('')}
                   />
+                  )}
                 </span>
               </p>
             </div>
@@ -137,7 +152,7 @@ export const App = () => {
             data-cy="ProductTable"
             className="table is-striped is-narrow is-fullwidth"
           >
-            {visiableProducts.length > 0 ? (
+            {visibleProducts.length > 0 ? (
               <thead>
                 <tr>
                   <th>
@@ -191,8 +206,8 @@ export const App = () => {
               </thead>
             ) : null}
             <tbody>
-              {visiableProducts.length > 0 ? (
-                visiableProducts.map(product => (
+              {visibleProducts.length > 0 ? (
+                visibleProducts.map(product => (
                   <tr data-cy="Product">
                     <td className="has-text-weight-bold" data-cy="ProductId">
                       {product.productId}

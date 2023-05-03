@@ -18,7 +18,7 @@ export const App = () => {
     };
   });
 
-  const [selectedUserFilter, setSelectedUserFilter] = useState(0);
+  const [selectedUserFilter, setSelectedUserFilter] = useState(null);
   const [searchByWord, setSearchByWord] = useState('');
 
   let filteredProducts;
@@ -33,6 +33,11 @@ export const App = () => {
       .filter(product => product.name
         .toLowerCase().includes(searchByWord.toLowerCase()));
   }
+
+  const resetFilters = () => {
+    setSelectedUserFilter(null);
+    setSearchByWord('');
+  };
 
   return (
     <div className="section">
@@ -138,6 +143,7 @@ export const App = () => {
                 data-cy="ResetAllButton"
                 href="#/"
                 className="button is-link is-outlined is-fullwidth"
+                onClick={resetFilters}
               >
                 Reset all filters
               </a>

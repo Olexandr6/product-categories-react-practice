@@ -22,16 +22,11 @@ const products = productsFromServer.map((product) => {
     user,
   };
 });
-// const products = productsFromServer.map((product) => {
-//   const category = null; // find by product.categoryId
-//   const user = null; // find by category.ownerId
-
-//   return null;
-// });
 
 export const App = () => {
   // eslint-disable-next-line no-unused-vars
-  const [searchValue, setSearchValue] = useState('');
+  const [currentProducts, setcurrentProducts] = useState(products);
+  const [currentFilter, setCurrentFilter] = useState('All');
 
   return (
     <div className="section">
@@ -44,33 +39,44 @@ export const App = () => {
 
             <p className="panel-tabs has-text-weight-bold">
               <a
+                className={classNames({
+                  'is-active': currentFilter === 'All',
+                })}
                 data-cy="FilterAllUsers"
                 href="#/"
+                value="All"
+                onClick={() => {
+                  setcurrentProducts(products);
+                  setCurrentFilter('All');
+                }}
               >
                 All
               </a>
 
-              <a
-                data-cy="FilterUser"
-                href="#/"
-              >
-                User 1
-              </a>
+              {usersFromServer.map((currentUser) => {
+                const { id, name } = currentUser;
 
-              <a
-                data-cy="FilterUser"
-                href="#/"
-                className="is-active"
-              >
-                User 2
-              </a>
+                return (
+                  <a
+                    className={classNames({
+                      'is-active': currentFilter === name,
+                    })}
+                    data-cy="FilterUser"
+                    key={id}
+                    href="#/"
+                    onClick={() => {
+                      const productsOfUser = products.filter(
+                        ({ user }) => user.name === name,
+                      );
 
-              <a
-                data-cy="FilterUser"
-                href="#/"
-              >
-                User 3
-              </a>
+                      setcurrentProducts(productsOfUser);
+                      setCurrentFilter(name);
+                    }}
+                  >
+                    {name}
+                  </a>
+                );
+              })}
             </p>
 
             <div className="panel-block">
@@ -107,36 +113,24 @@ export const App = () => {
                 All
               </a>
 
-              <a
-                data-cy="Category"
-                className="button mr-2 my-1 is-info"
-                href="#/"
-              >
-                Category 1
-              </a>
+              {categoriesFromServer.map((category) => {
+                const { id, title } = category;
 
-              <a
-                data-cy="Category"
-                className="button mr-2 my-1"
-                href="#/"
-              >
-                Category 2
-              </a>
-
-              <a
-                data-cy="Category"
-                className="button mr-2 my-1 is-info"
-                href="#/"
-              >
-                Category 3
-              </a>
-              <a
-                data-cy="Category"
-                className="button mr-2 my-1"
-                href="#/"
-              >
-                Category 4
-              </a>
+                return (
+                  <a
+                    key={id}
+                    href="#/"
+                    data-cy="Category"
+                    className={classNames(
+                      'button',
+                      'mr-2',
+                      'is-outlined',
+                    )}
+                  >
+                    {title}
+                  </a>
+                );
+              })}
             </div>
 
             <div className="panel-block">
@@ -214,7 +208,7 @@ export const App = () => {
 
             <tbody>
               {
-                products.map((product) => {
+                currentProducts.map((product) => {
                   const {
                     id,
                     name,

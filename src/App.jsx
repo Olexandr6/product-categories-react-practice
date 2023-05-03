@@ -23,7 +23,12 @@ const products = productsFromServer.map((product) => {
 });
 
 export const App = () => {
-  const [visibleProducts] = useState(products);
+  const [allProducts] = useState(products);
+  const [selectedUserId, setSelectedUserId] = useState(0);
+
+  const visibleProducts = allProducts.filter(({ user }) => (
+    user.id === selectedUserId || !selectedUserId
+  ));
 
   return (
     <div className="section">
@@ -38,31 +43,26 @@ export const App = () => {
               <a
                 data-cy="FilterAllUsers"
                 href="#/"
+                className={classNames({
+                  'is-active': !selectedUserId,
+                })}
+                onClick={() => setSelectedUserId(0)}
               >
                 All
               </a>
 
-              <a
-                data-cy="FilterUser"
-                href="#/"
-              >
-                User 1
-              </a>
-
-              <a
-                data-cy="FilterUser"
-                href="#/"
-                className="is-active"
-              >
-                User 2
-              </a>
-
-              <a
-                data-cy="FilterUser"
-                href="#/"
-              >
-                User 3
-              </a>
+              {usersFromServer.map(user => (
+                <a
+                  data-cy="FilterUser"
+                  href={`#/${user.id}`}
+                  className={classNames({
+                    'is-active': user.id === selectedUserId,
+                  })}
+                  onClick={() => setSelectedUserId(user.id)}
+                >
+                  {user.name}
+                </a>
+              ))}
             </p>
 
             <div className="panel-block">
@@ -144,9 +144,9 @@ export const App = () => {
         </div>
 
         <div className="box table-container">
-          <p data-cy="NoMatchingMessage">
+          {/* <p data-cy="NoMatchingMessage">
             No products matching selected criteria
-          </p>
+          </p> */}
 
           <table
             data-cy="ProductTable"

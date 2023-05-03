@@ -85,6 +85,9 @@ export const App = () => {
               <a
                 data-cy="FilterAllUsers"
                 href="#/"
+                className={classNames({
+                  'is-active': setUserId === null,
+                })}
                 onClick={() => setUserId(null)}
               >
                 All
@@ -93,6 +96,9 @@ export const App = () => {
                 <a
                   data-cy="FilterUser"
                   href="#/"
+                  className={classNames({
+                    'is-active': userId === user.id,
+                  })}
                   onClick={() => setUserId(user.id)}
                 >
                   {user.name}
@@ -132,7 +138,11 @@ export const App = () => {
               <a
                 href="#/"
                 data-cy="AllCategories"
-                className="button is-success mr-6 is-outlined"
+                className={classNames(
+                  'button is-outlined mr-6', {
+                    'is-success': !setCategoryId.length,
+                  },
+                )}
                 onClick={() => setCategoryId([])}
               >
                 All
@@ -141,7 +151,11 @@ export const App = () => {
               {categoriesFromServer.map(category => (
                 <a
                   data-cy="Category"
-                  className="button mr-2 my-1 is-info"
+                  className={classNames(
+                    'button mr-2 my-1', {
+                      'is-info': categoryId.includes(category.id),
+                    },
+                  )}
                   href="#/"
                   key={category.id}
                   onClick={() => handleFilterCategoryId(category.id)}

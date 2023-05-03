@@ -37,20 +37,16 @@ export const App = () => {
     setVisibleProducts(products);
   };
 
-  const isProductMatchSearch = search => search
-    .toLowerCase().includes(guery.toLowerCase().trim());
-
-  const handleSearch = (event) => {
+  const handleProductNameFilter = (event) => {
     setQuery(event.target.value);
-    setVisibleProducts(products.filter(product => (
-      isProductMatchSearch(product.name)
-    )));
   };
 
-  const handleClear = () => {
+  const handleClearProductNameFilter = () => {
     setQuery('');
-    setVisibleProducts(products);
   };
+
+  const filteredProducts = visibleProducts.filter(product => product
+    .name.toLowerCase().includes(guery.toLowerCase()));
 
   const handleResetAll = () => {
     setQuery('');
@@ -101,22 +97,23 @@ export const App = () => {
                   className="input"
                   placeholder="Search"
                   value={guery}
-                  onChange={event => handleSearch(event)}
+                  onChange={event => handleProductNameFilter(event)}
                 />
 
                 <span className="icon is-left">
                   <i className="fas fa-search" aria-hidden="true" />
                 </span>
 
-                <span className="icon is-right">
-                  {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
-                  <button
-                    data-cy="ClearButton"
-                    type="button"
-                    className="delete"
-                    onClick={() => handleClear()}
-                  />
-                </span>
+                {guery && (
+                  <span className="icon is-right">
+                    <button
+                      data-cy="ClearButton"
+                      type="button"
+                      className="delete"
+                      onClick={() => handleClearProductNameFilter()}
+                    />
+                  </span>
+                )}
               </p>
             </div>
 
@@ -175,7 +172,7 @@ export const App = () => {
         </div>
 
         <div className="box table-container">
-          {visibleProducts.length === 0 ? (
+          {filteredProducts.length === 0 ? (
             <p data-cy="NoMatchingMessage">
               No products matching selected criteria
             </p>
@@ -237,7 +234,7 @@ export const App = () => {
               </thead>
 
               <tbody>
-                {visibleProducts.map(product => (
+                {filteredProducts.map(product => (
                   <tr key={product.id} data-cy="Product">
                     <td className="has-text-weight-bold" data-cy="ProductId">
                       {product.id}

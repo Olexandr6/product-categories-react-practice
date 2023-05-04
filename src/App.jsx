@@ -68,8 +68,8 @@ export const App = () => {
   };
 
   const unselectedCategory = (categoryToDeleteId) => {
-    setSelectedCategoriesId(currentCategoriesId => currentCategoriesId
-      .filter(id => id !== categoryToDeleteId));
+    setSelectedCategoriesId(current => current
+      .filter(currentId => currentId !== categoryToDeleteId));
   };
 
   const isSelected = id => selectedCategoriesId

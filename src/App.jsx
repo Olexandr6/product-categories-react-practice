@@ -32,35 +32,98 @@ const products = productsFromServer.map((product) => {
 });
 
 export const App = () => {
-  const [selectedUser, setSelectedUser] = useState(null);
+  const [selectedUserId, setSelectedUserId] = useState(0);
   const [query, setQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [selectedCategoriesId, setSelectedCategoriesId] = useState([]);
+  const [sortField, setSortField] = useState('');
+  const [isReversed, setIsReversed] = useState(false);
 
-  const normalizeQuery = query.toLowerCase().trim();
+  let visibleProducts = [...products];
 
-  const isIncludes = (str, substr) => {
-    const normalizeStr = str.toLowerCase();
+  if (selectedUserId) {
+    visibleProducts = visibleProducts.filter(
+      ({ user }) => user.id === selectedUserId,
+    );
+  }
 
-    return normalizeStr.includes(substr);
+  if (query) {
+    const lowerCaseQuery = query.toLowerCase().trim();
+
+    visibleProducts = visibleProducts.filter(
+      ({ name }) => name.toLowerCase().includes(lowerCaseQuery),
+    );
+  }
+
+  if (selectedCategoriesId.length) {
+    visibleProducts = visibleProducts.filter(
+      product => selectedCategoriesId.includes(product.category.id),
+    );
+  }
+
+  const selectedCategory = (categoryToAddId) => {
+    setSelectedCategoriesId(current => ([
+      ...current,
+      categoryToAddId,
+    ]));
+  };
+
+  const unselectedCategory = (categoryToDeleteId) => {
+    setSelectedCategoriesId(currentCategoriesId => currentCategoriesId
+      .filter(id => id !== categoryToDeleteId));
+  };
+
+  const isSelected = id => selectedCategoriesId
+    .some(selectedId => selectedId === id);
+
+  const clearSelection = () => {
+    setSelectedCategoriesId([]);
   };
 
   const handleReset = () => {
-    setSelectedUser(null);
+    setSelectedUserId(0);
     setQuery('');
+    setSelectedCategoriesId([]);
   };
 
-  const visibleProducts = products
-    .filter((product) => {
-      if (!selectedUser && !query) {
-        return products;
-      }
+  const sortBy = (columnName) => {
+    const isFirstClick = sortField !== columnName;
+    const isSecondClick = !isFirstClick && !isReversed;
 
-      const findSelectedUsers = selectedUser === product.user.name
-        || selectedUser === null;
-      const findProductByQuery = isIncludes(product.name, normalizeQuery);
+    setSortField(isFirstClick || isSecondClick ? columnName : '');
+    setIsReversed(isSecondClick);
+  };
 
-      return findSelectedUsers && findProductByQuery;
-    });
+  const resetSorting = () => {
+    setSortField('');
+    setIsReversed(false);
+  };
+
+  if (sortField) {
+    visibleProducts.sort(
+      (a, b) => {
+        switch (sortField) {
+          case 'id':
+            return a.id - b.id;
+
+          case 'name':
+            return a[sortField].localeCompare(b[sortField]);
+
+          case 'title':
+            return a.category.title.localeCompare(b.category.title);
+
+          case 'userName':
+            return a.user.name.localeCompare(b.user.name);
+
+          default:
+            return 0;
+        }
+      },
+    );
+  }
+
+  if (isReversed) {
+    visibleProducts.reverse();
+  }
 
   return (
 
@@ -76,9 +139,9 @@ export const App = () => {
               <a
                 data-cy="FilterAllUsers"
                 href="#/"
-                onClick={() => setSelectedUser(null)}
+                onClick={() => setSelectedUserId(0)}
                 className={classNames(
-                  { 'is-active': selectedUser === null },
+                  { 'is-active': !selectedUserId },
                 )}
               >
                 All
@@ -89,9 +152,9 @@ export const App = () => {
                   data-cy="FilterUser"
                   href="#/"
                   key={user.id}
-                  onClick={() => setSelectedUser(user.name)}
+                  onClick={() => setSelectedUserId(user.id)}
                   className={classNames(
-                    { 'is-active': selectedUser === user.name },
+                    { 'is-active': selectedUserId === user.id },
                   )}
                 >
                   {user.name}
@@ -114,14 +177,18 @@ export const App = () => {
                   <i className="fas fa-search" aria-hidden="true" />
                 </span>
 
-                <span className="icon is-right">
-                  {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
-                  <button
-                    data-cy="ClearButton"
-                    type="button"
-                    className="delete"
-                  />
-                </span>
+                {query && (
+                  <span className="icon is-right">
+                    {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
+                    <button
+                      data-cy="ClearButton"
+                      type="button"
+                      className="delete"
+                      onClick={() => setQuery('')}
+                    />
+                  </span>
+                )}
+
               </p>
             </div>
 
@@ -129,55 +196,39 @@ export const App = () => {
               <a
                 href="#/"
                 data-cy="AllCategories"
-                className="button is-success mr-6 is-outlined"
-                onClick={() => setSelectedCategory(null)}
+                className={classNames('button', 'is-success', 'mr-6',
+                  { 'is-outlined': selectedCategoriesId.length !== 0 })
+                }
+                onClick={clearSelection}
               >
                 All
               </a>
 
-              {categoriesFromServer.map(category => (
-                <a
-                  data-cy="Category"
-                  className={classNames('button', 'mr-2', 'my-1',
-                    { 'is-info': selectedCategory === category.title })
-                  }
-                  href="#/"
-                  onClick={() => setSelectedCategory(category.name)}
-                >
-                  {category.title}
-                </a>
+              {categoriesFromServer.map(({ id, title }) => (
+                isSelected(id)
+                  ? (
+                    <a
+                      data-cy="Category"
+                      className="button mr-2 my-1 is-info"
+                      key={id}
+                      href="#/"
+                      onClick={() => unselectedCategory(id)}
+                    >
+                      {title}
+                    </a>
+                  ) : (
+                    <a
+                      data-cy="Category"
+                      className="button mr-2 my-1"
+                      key={id}
+                      href="#/"
+                      onClick={() => selectedCategory(id)}
+                    >
+                      {title}
+                    </a>
+                  )
               ))}
 
-              {/* <a
-                data-cy="Category"
-                className="button mr-2 my-1 is-info"
-                href="#/"
-              >
-                Category 1
-              </a>
-
-              <a
-                data-cy="Category"
-                className="button mr-2 my-1"
-                href="#/"
-              >
-                Category 2
-              </a>
-
-              <a
-                data-cy="Category"
-                className="button mr-2 my-1 is-info"
-                href="#/"
-              >
-                Category 3
-              </a>
-              <a
-                data-cy="Category"
-                className="button mr-2 my-1"
-                href="#/"
-              >
-                Category 4
-              </a> */}
             </div>
 
             <div className="panel-block">
@@ -211,9 +262,17 @@ export const App = () => {
                       <span className="is-flex is-flex-wrap-nowrap">
                         ID
 
-                        <a href="#/">
+                        <a href="#/" onClick={() => sortBy('id')}>
                           <span className="icon">
-                            <i data-cy="SortIcon" className="fas fa-sort" />
+                            <i
+                              data-cy="SortIcon"
+                              className={classNames('fas', {
+                                'fa-sort': sortField !== 'id',
+                                'fa-sort-up': sortField === 'id' && !isReversed,
+                                'fa-sort-down': sortField === 'id'
+                                  && isReversed,
+                              })}
+                            />
                           </span>
                         </a>
                       </span>
@@ -222,12 +281,23 @@ export const App = () => {
                     <th>
                       <span className="is-flex is-flex-wrap-nowrap">
                         Product
-
-                        <a href="#/">
+                        <a
+                          href="#/"
+                          onClick={() => {
+                            resetSorting();
+                            sortBy('name');
+                          }}
+                        >
                           <span className="icon">
                             <i
                               data-cy="SortIcon"
-                              className="fas fa-sort-down"
+                              className={classNames('fas', {
+                                'fa-sort': sortField !== 'name',
+                                'fa-sort-up': sortField === 'name'
+                                  && !isReversed,
+                                'fa-sort-down': sortField === 'name'
+                                  && isReversed,
+                              })}
                             />
                           </span>
                         </a>
@@ -238,9 +308,25 @@ export const App = () => {
                       <span className="is-flex is-flex-wrap-nowrap">
                         Category
 
-                        <a href="#/">
+                        <a
+                          href="#/"
+                          onClick={() => {
+                            resetSorting();
+                            sortBy('title');
+                          }}
+                        >
                           <span className="icon">
-                            <i data-cy="SortIcon" className="fas fa-sort-up" />
+                            <i
+                              data-cy="SortIcon"
+                              className={classNames('fas', {
+                                'fa-sort': sortField !== 'title',
+                                'fa-sort-up': sortField === 'title'
+                                  && !isReversed,
+                                'fa-sort-down':
+                                  sortField === 'title'
+                                  && isReversed,
+                              })}
+                            />
                           </span>
                         </a>
                       </span>
@@ -250,9 +336,24 @@ export const App = () => {
                       <span className="is-flex is-flex-wrap-nowrap">
                         User
 
-                        <a href="#/">
+                        <a
+                          href="#/"
+                          onClick={() => {
+                            resetSorting();
+                            sortBy('userName');
+                          }}
+                        >
                           <span className="icon">
-                            <i data-cy="SortIcon" className="fas fa-sort" />
+                            <i
+                              data-cy="SortIcon"
+                              className={classNames('fas', {
+                                'fa-sort': sortField !== 'userName',
+                                'fa-sort-up': sortField === 'userName'
+                                  && !isReversed,
+                                'fa-sort-down': sortField === 'userName'
+                                  && isReversed,
+                              })}
+                            />
                           </span>
                         </a>
                       </span>
@@ -261,24 +362,26 @@ export const App = () => {
                 </thead>
 
                 <tbody>
-                  {visibleProducts.map(product => (
-                    <tr data-cy="Product" key={product.id}>
+                  {visibleProducts.map(({ id, name, category, user }) => (
+                    <tr data-cy="Product" key={id}>
                       <td className="has-text-weight-bold" data-cy="ProductId">
-                        {product.id}
+                        {id}
                       </td>
 
-                      <td data-cy="ProductName">{product.name}</td>
-                      <td data-cy="ProductCategory">{`${product.category.icon} - ${product.category.title}`}</td>
+                      <td data-cy="ProductName">{name}</td>
+                      <td data-cy="ProductCategory">
+                        {`${category.icon} - ${category.title}`}
+                      </td>
 
                       <td
                         data-cy="ProductUser"
                         className={classNames({
-                          'has-text-link': product.user.sex === 'm',
-                          'has-text-danger': product.user.sex === 'f',
+                          'has-text-link': user.sex === 'm',
+                          'has-text-danger': user.sex === 'f',
                         })}
 
                       >
-                        {product.user.name}
+                        {user.name}
                       </td>
                     </tr>
                   ))}

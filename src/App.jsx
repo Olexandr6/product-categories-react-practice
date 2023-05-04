@@ -1,3 +1,6 @@
+/* eslint-disable jsx-a11y/no-static-element-interactions */
+/* eslint-disable jsx-a11y/click-events-have-key-events */
+/* eslint-disable no-fallthrough */
 /* eslint-disable jsx-a11y/accessible-emoji */
 import React, { useState } from 'react';
 import './App.scss';
@@ -22,6 +25,15 @@ export const App = () => {
   const [chosenUserName, setChosenUser] = useState('');
   const [inputQuery, setInputQuery] = useState('');
   const [selectedCategories, setSelectedCategories] = useState([]);
+  const [sortType, setSortType] = useState('none');
+  const [isReversed, setReverse] = useState(false);
+
+  const tableColumns = [
+    'ID',
+    'Product',
+    'Category',
+    'User',
+  ];
 
   let visibleProducts = [...products];
 
@@ -30,6 +42,52 @@ export const App = () => {
     setInputQuery('');
     setSelectedCategories([]);
   };
+
+  switch (sortType) {
+    case 'none': {
+      visibleProducts = [...products];
+    }
+
+    case 'ID': {
+      visibleProducts.sort((a, b) => {
+        const comparance = a.id - b.id;
+
+        return isReversed ? -comparance : comparance;
+      });
+      break;
+    }
+
+    case 'Product':
+    {
+      visibleProducts.sort((a, b) => {
+        const comparance = a.name.localeCompare(b.name);
+
+        return isReversed ? -comparance : comparance;
+      });
+      break;
+    }
+
+    case 'Category':
+    {
+      visibleProducts.sort((a, b) => {
+        const comparance = a.category.title.localeCompare(b.category.title);
+
+        return isReversed ? -comparance : comparance;
+      });
+      break;
+    }
+
+    case 'User': {
+      visibleProducts.sort((a, b) => {
+        const comparance = a.user.name.localeCompare(b.user.name);
+
+        return isReversed ? -comparance : comparance;
+      });
+      break;
+    }
+
+    default: throw new Error('wrong sort type');
+  }
 
   if (chosenUserName.length) {
     visibleProducts = visibleProducts
@@ -99,6 +157,7 @@ export const App = () => {
                   <i className="fas fa-search" aria-hidden="true" />
                 </span>
 
+                {inputQuery.length > 0 && (
                 <span className="icon is-right">
                   {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
                   <button
@@ -110,6 +169,7 @@ export const App = () => {
                     }}
                   />
                 </span>
+                )}
               </p>
             </div>
 
@@ -167,9 +227,9 @@ export const App = () => {
 
         <div className="box table-container">
           {visibleProducts.length === 0 && (
-          <p data-cy="NoMatchingMessage">
-            No products matching selected criteria
-          </p>
+            <p data-cy="NoMatchingMessage">
+              No products matching selected criteria
+            </p>
           )}
 
           {visibleProducts.length > 0 && (
@@ -179,53 +239,47 @@ export const App = () => {
           >
             <thead>
               <tr>
-                <th>
-                  <span className="is-flex is-flex-wrap-nowrap">
-                    ID
+                {tableColumns.map(column => (
+                  <th key={column}>
+                    <span className="is-flex is-flex-wrap-nowrap">
+                      {column}
 
-                    <a href="#/">
-                      <span className="icon">
-                        <i data-cy="SortIcon" className="fas fa-sort" />
-                      </span>
-                    </a>
-                  </span>
-                </th>
+                      <a href="#/">
+                        <span className="icon">
+                          <i
+                            data-cy="SortIcon"
+                            className={cn('fas',
+                              { 'fa-sort': sortType === 'none' },
+                              { 'fa-sort-up':
+                                sortType === column && !isReversed },
+                              { 'fa-sort-down':
+                                sortType === column && isReversed })}
+                            onClick={() => {
+                              if (sortType !== column) {
+                                setSortType(column);
 
-                <th>
-                  <span className="is-flex is-flex-wrap-nowrap">
-                    Product
+                                return;
+                              }
 
-                    <a href="#/">
-                      <span className="icon">
-                        <i data-cy="SortIcon" className="fas fa-sort-down" />
-                      </span>
-                    </a>
-                  </span>
-                </th>
+                              if (sortType === column && !isReversed) {
+                                setReverse(true);
 
-                <th>
-                  <span className="is-flex is-flex-wrap-nowrap">
-                    Category
+                                return;
+                              }
 
-                    <a href="#/">
-                      <span className="icon">
-                        <i data-cy="SortIcon" className="fas fa-sort-up" />
-                      </span>
-                    </a>
-                  </span>
-                </th>
+                              if (sortType === column && isReversed) {
+                                setSortType('none');
+                                setReverse(false);
+                              }
+                            }}
+                          />
+                        </span>
+                      </a>
+                    </span>
+                  </th>
 
-                <th>
-                  <span className="is-flex is-flex-wrap-nowrap">
-                    User
+                ))}
 
-                    <a href="#/">
-                      <span className="icon">
-                        <i data-cy="SortIcon" className="fas fa-sort" />
-                      </span>
-                    </a>
-                  </span>
-                </th>
               </tr>
             </thead>
 
